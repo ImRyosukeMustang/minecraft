@@ -204,7 +204,6 @@ document.addEventListener("mousedown", function (e) {
         spawnParticles(px + 0.5, py + 0.5, pz + 0.5, getBlockColor(blockToPlace), CONFIG.PARTICLE_PLACE_COUNT);
         playSound(CONFIG.BLOCK_PLACE_SOUND_FREQ, CONFIG.BLOCK_PLACE_SOUND_DUR, "square");
     }
-}
 });
 document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
 
@@ -229,5 +228,6 @@ function resumeGame() {
     document.getElementById("pause-menu").style.display = "none";
     canvas.requestPointerLock();
 }
+
 // ============ START ============
 loop();
