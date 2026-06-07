@@ -346,21 +346,20 @@ function preGenerateSpawn(radius) {
 // ============ CHUNK UNLOADING ============
 function unloadDistantChunks() {
     if (typeof player === "undefined") return;
-    
+
     var pcx = worldToChunk(player.x);
     var pcz = worldToChunk(player.z);
     var chunks = getCurrentChunks();
-    
+
     for (var key in chunks) {
         if (!chunks.hasOwnProperty(key)) continue;
         var parts = key.split(":")[1].split(",");
         var cx = parseInt(parts[0]);
         var cz = parseInt(parts[1]);
-        
-       if (Math.abs(cx - pcx) > CONFIG.VIEW_DISTANCE + 3 || Math.abs(cz - pcz) > CONFIG.VIEW_DISTANCE + 3)
+
+        if (Math.abs(cx - pcx) > CONFIG.VIEW_DISTANCE + 3 || Math.abs(cz - pcz) > CONFIG.VIEW_DISTANCE + 3) {
             delete chunks[key];
         }
     }
 }
-
 console.log("World engine loaded - Seed: " + CONFIG.WORLD_SEED);
