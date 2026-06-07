@@ -181,13 +181,15 @@ document.addEventListener("keydown", function (e) {
     if (e.code === CONFIG.KEY_SAVE && typeof saveWorld === "function") { saveWorld(); addChat("Saved!"); }
     if (e.code === CONFIG.KEY_LOAD && typeof loadWorld === "function") { loadWorld(); addChat("Loaded!"); }
 
-    for (var i = 1; i <= 9; i++) {
-        if (e.code === CONFIG["KEY_HOTBAR_" + i]) {
-            selectedSlot = i - 1;
-            selectedBlock = CONFIG.DEFAULT_HOTBAR[selectedSlot];
-            updateHotbarUI();
-        }
+for (var i = 1; i <= 9; i++) {
+    if (e.code === CONFIG["KEY_HOTBAR_" + i]) {
+        selectedSlot = i - 1;
+        selectedBlock = (inventory[selectedSlot] && inventory[selectedSlot].id)
+            ? inventory[selectedSlot].id
+            : CONFIG.DEFAULT_HOTBAR[selectedSlot];
+        updateHotbarUI();
     }
+}
 
     if (e.code === CONFIG.KEY_COMMAND && gameState.locked && !gameState.showInventory) {
         e.preventDefault();
@@ -227,8 +229,10 @@ document.addEventListener("mousedown", function (e) {
         else if (ady >= adx && ady >= adz) py += dy > 0 ? 1 : -1;
         else pz += dz > 0 ? 1 : -1;
 
-        if (getBlock(px, py, pz) === BLOCKS.AIR) {
-            setBlock(px, py, pz, selectedBlock);
+   var blockToPlace = (inventory[selectedSlot] && inventory[selectedSlot].id) 
+    ? inventory[selectedSlot].id 
+    : CONFIG.DEFAULT_HOTBAR[selectedSlot];
+setBlock(px, py, pz, blockToPlace);
             player.blocksPlaced++;
             spawnParticles(px + 0.5, py + 0.5, pz + 0.5, getBlockColor(selectedBlock), CONFIG.PARTICLE_PLACE_COUNT);
             playSound(CONFIG.BLOCK_PLACE_SOUND_FREQ, CONFIG.BLOCK_PLACE_SOUND_DUR, "square");
@@ -257,5 +261,4 @@ window.addEventListener("resize", function () {
 });
 
 // ============ START ============
-preGenerateSpawn(CONFIG.VIEW_DISTANCE + 1);
 loop();
