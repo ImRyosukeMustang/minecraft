@@ -41,9 +41,7 @@ function addChat(msg) {
     if (chatMessages.length > CONFIG.MAX_CHAT_MESSAGES) chatMessages.shift();
 }
 
-// ============ AUDIO INIT ============
-var audioCtx = null;
-
+// ============ AUDIO ============
 function initAudio() {
     try {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -74,14 +72,11 @@ function playSound(freq, dur, type, vol) {
 function initGame() {
     initPlayer();
     initInventory();
-    initAudio();
     preGenerateSpawn(CONFIG.VIEW_DISTANCE + 1);
-    
     addChat("Welcome to Minecraft!");
     addChat("Seed: " + CONFIG.WORLD_SEED);
     addChat("WASD: Move | Mouse: Look | Click: Mine/Place");
     addChat("F: Fly | E: Inventory | /: Commands | F3: Debug");
-    addChat("P: Save | L: Load");
 }
 
 // ============ MAIN GAME LOOP ============
@@ -89,10 +84,8 @@ function update() {
     if (!gameState.started || !gameState.locked || gameState.paused) return;
     if (gameState.showInventory) return;
 
-    // Player movement
     updatePlayerMovement();
 
-    // Time
     if (CONFIG.DO_DAYLIGHT_CYCLE) {
         gameState.timeOfDay = (gameState.timeOfDay + 1) % CONFIG.DAY_LENGTH;
     }
@@ -100,37 +93,30 @@ function update() {
     gameState.tickCount++;
     gameState.gameTime++;
 
-    // Periodic systems
     if (gameState.tickCount % 2 === 0) updateWeather();
     if (gameState.tickCount % 3 === 0) updateEntities();
     if (gameState.tickCount % 2 === 0) updateParticles();
 
-    // Mob spawning
     if (CONFIG.DO_MOB_SPAWNING && gameState.tickCount % CONFIG.MOB_SPAWN_INTERVAL === 0) {
         spawnAmbientMobs();
     }
 
-    // Chunk unloading
     if (gameState.tickCount % CONFIG.CHUNK_UNLOAD_INTERVAL === 0) {
         unloadDistantChunks();
     }
 
-    // Hunger update
     if (CONFIG.DO_HUNGER && gameState.tickCount % 40 === 0) {
         updateHungerSystem();
     }
 
-    // Effects update
     if (gameState.tickCount % 20 === 0) {
         updatePlayerEffects();
     }
 
-    // Auto-save
-    if (gameState.tickCount % (CONFIG.SAVE_INTERVAL / 50) === 0) {
+    if (gameState.tickCount % Math.floor(CONFIG.SAVE_INTERVAL / 50) === 0) {
         if (typeof saveWorld === "function") saveWorld();
     }
 
-    // FPS counter
     gameState.fpsFrames++;
     if (Date.now() - gameState.fpsLastTime >= 1000) {
         gameState.fps = gameState.fpsFrames;
@@ -142,43 +128,30 @@ function update() {
 function render() {
     ctx.clearRect(0, 0, W, H);
 
-    // Sky
     renderSky();
 
-    // Title screen
     if (!gameState.started) {
         renderTitleScreen();
         return;
     }
 
-    // World
     renderWorld();
 
-    // Weather
     if (CONFIG.RENDER_WEATHER) renderWeather();
 
-    // Entities
     if (CONFIG.RENDER_ENTITIES) renderEntities();
 
-    // Particles
     if (CONFIG.RENDER_PARTICLES) renderParticles();
 
-    // HUD
     if (gameState.locked && !gameState.showInventory) {
-        if (CONFIG.RENDER_HUD) renderHUD();
-        if (CONFIG.RENDER_CROSSHAIR) renderCrosshair();
+        renderHUD();
     }
 
-    // Inventory screen
     if (gameState.showInventory) renderInventoryScreen();
 
-    // Debug screen
     if (gameState.showDebug) renderDebugScreen();
 
-    // Chat
     renderChat();
-
-    // FPS & Info
     updateInfoDisplay();
 }
 
@@ -188,7 +161,7 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
-// ============ SKY RENDERING ============
+// ============ SKY ============
 function renderSky() {
     var t = gameState.timeOfDay;
     var dim = currentDimension;
@@ -202,18 +175,9 @@ function renderSky() {
         bottom = CONFIG.SKY_END_BOTTOM;
     } else {
         var isNight = (t < CONFIG.SUNRISE_END || t > CONFIG.SUNSET_END);
-        var isSunrise = (t >= CONFIG.SUNRISE_START && t < CONFIG.SUNRISE_END);
-        var isSunset = (t >= CONFIG.SUNSET_START && t < CONFIG.SUNSET_END);
-
         if (isNight) {
             top = CONFIG.SKY_NIGHT_TOP;
             bottom = CONFIG.SKY_NIGHT_BOTTOM;
-        } else if (isSunrise) {
-            top = CONFIG.SKY_SUNRISE_TOP;
-            bottom = CONFIG.SKY_SUNRISE_BOTTOM;
-        } else if (isSunset) {
-            top = CONFIG.SKY_SUNSET_TOP;
-            bottom = CONFIG.SKY_SUNSET_BOTTOM;
         } else {
             top = CONFIG.SKY_DAY_TOP;
             bottom = CONFIG.SKY_DAY_BOTTOM;
@@ -239,85 +203,7 @@ function renderTitleScreen() {
     ctx.font = "16px 'Courier New'";
     ctx.fillText("Click to Play", W / 2, H / 2);
     ctx.fillText("Seed: " + CONFIG.WORLD_SEED, W / 2, H / 2 + 25);
-    ctx.fillText("WASD: Move | Mouse: Look | Click: Mine/Place", W / 2, H / 2 + 50);
-    ctx.fillText("F: Fly | E: Inventory | /: Commands | F3: Debug", W / 2, H / 2 + 70);
-}
-
-// ============ HUD ============
-function renderHUD() {
-    // Health bar
-    var barW = 182, barH = 8, barX = W / 2 - barW / 2, barY = H - 52;
-
-    ctx.fillStyle = "#000";
-    ctx.fillRect(barX, barY, barW, barH);
-    ctx.fillStyle = "#cc0000";
-    ctx.fillRect(barX, barY, barW * (player.health / player.maxHealth), barH);
-    ctx.strokeStyle = "#555";
-    ctx.strokeRect(barX, barY, barW, barH);
-    ctx.fillStyle = "#fff";
-    ctx.font = "10px monospace";
-    ctx.textAlign = "left";
-    ctx.fillText("\u2764 " + Math.floor(player.health) + "/" + player.maxHealth, barX, barY - 2);
-
-    // Hunger bar
-    ctx.fillStyle = "#000";
-    ctx.fillRect(barX, barY + 12, barW, barH);
-    ctx.fillStyle = "#dd8800";
-    ctx.fillRect(barX, barY + 12, barW * (player.hunger / player.maxHunger), barH);
-    ctx.strokeStyle = "#555";
-    ctx.strokeRect(barX, barY + 12, barW, barH);
-    ctx.fillText("\uD83C\uDF57 " + Math.floor(player.hunger) + "/" + player.maxHunger, barX, barY + 10);
-
-    // Block info
-    ctx.fillStyle = "#fff";
-    ctx.font = "13px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(getBlockName(selectedBlock) + " | P:" + player.blocksPlaced + " B:" + player.blocksBroken, W / 2, barY - 8);
-
-    // Flying indicator
-    if (player.isFlying) {
-        ctx.fillStyle = "#87CEEB";
-        ctx.font = "12px monospace";
-        ctx.textAlign = "left";
-        ctx.fillText("\u2708 FLYING", 10, 50);
-    }
-}
-
-// ============ CROSSHAIR ============
-function renderCrosshair() {
-    ctx.strokeStyle = "rgba(255,255,255,0.8)";
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(W / 2 - 8, H / 2); ctx.lineTo(W / 2 - 2, H / 2);
-    ctx.moveTo(W / 2 + 2, H / 2); ctx.lineTo(W / 2 + 8, H / 2);
-    ctx.moveTo(W / 2, H / 2 - 8); ctx.lineTo(W / 2, H / 2 - 2);
-    ctx.moveTo(W / 2, H / 2 + 2); ctx.lineTo(W / 2, H / 2 + 8);
-    ctx.stroke();
-}
-
-// ============ INFO DISPLAY ============
-function updateInfoDisplay() {
-    if (CONFIG.SHOW_COORDS) {
-        document.getElementById("info").innerHTML =
-            "HP:" + Math.floor(player.health) +
-            " Food:" + Math.floor(player.hunger) +
-            " XYZ:" + player.x.toFixed(1) + "," + player.y.toFixed(1) + "," + player.z.toFixed(1);
-    }
-    if (CONFIG.SHOW_FPS) {
-        document.getElementById("fps").textContent = "FPS:" + gameState.fps;
-    }
-}
-
-// ============ CHAT RENDERING ============
-function renderChat() {
-    var chatDiv = document.getElementById("chat");
-    if (!chatDiv) return;
-    var html = "";
-    var start = Math.max(0, chatMessages.length - CONFIG.CHAT_DISPLAY_COUNT);
-    for (var i = start; i < chatMessages.length; i++) {
-        html += '<div class="cmsg">' + chatMessages[i].text + '</div>';
-    }
-    chatDiv.innerHTML = html;
+    ctx.textAlign = "start";
 }
 
 // ============ MOB SPAWNING ============
@@ -347,7 +233,7 @@ function spawnAmbientMobs() {
     if (typeof spawnMob === "function") spawnMob(type, sx, sy, sz);
 }
 
-// ============ INPUT HANDLING ============
+// ============ INPUT ============
 document.addEventListener("keydown", function (e) {
     keys[e.code] = true;
 
@@ -356,6 +242,7 @@ document.addEventListener("keydown", function (e) {
     if (e.code === CONFIG.KEY_PAUSE) {
         if (gameState.showInventory) {
             gameState.showInventory = false;
+            document.getElementById("inventory-screen").style.display = "none";
         } else {
             document.exitPointerLock();
         }
@@ -363,6 +250,7 @@ document.addEventListener("keydown", function (e) {
 
     if (e.code === CONFIG.KEY_INVENTORY) {
         gameState.showInventory = !gameState.showInventory;
+        document.getElementById("inventory-screen").style.display = gameState.showInventory ? "block" : "none";
         if (gameState.showInventory) document.exitPointerLock();
     }
 
@@ -371,15 +259,9 @@ document.addEventListener("keydown", function (e) {
         document.getElementById("debug").style.display = gameState.showDebug ? "block" : "none";
     }
 
-    if (e.code === CONFIG.KEY_SAVE) {
-        if (typeof saveWorld === "function") { saveWorld(); addChat("World saved!"); }
-    }
+    if (e.code === CONFIG.KEY_SAVE && typeof saveWorld === "function") { saveWorld(); addChat("Saved!"); }
+    if (e.code === CONFIG.KEY_LOAD && typeof loadWorld === "function") { loadWorld(); addChat("Loaded!"); }
 
-    if (e.code === CONFIG.KEY_LOAD) {
-        if (typeof loadWorld === "function") { loadWorld(); addChat("World loaded!"); }
-    }
-
-    // Hotbar selection
     for (var i = 1; i <= 9; i++) {
         if (e.code === CONFIG["KEY_HOTBAR_" + i]) {
             selectedSlot = i - 1;
@@ -388,16 +270,13 @@ document.addEventListener("keydown", function (e) {
         }
     }
 
-    // Command input
     if (e.code === CONFIG.KEY_COMMAND && gameState.locked && !gameState.showInventory) {
         e.preventDefault();
         openCommandInput();
     }
 });
 
-document.addEventListener("keyup", function (e) {
-    keys[e.code] = false;
-});
+document.addEventListener("keyup", function (e) { keys[e.code] = false; });
 
 document.addEventListener("mousemove", function (e) {
     if (!gameState.locked || gameState.showInventory) return;
@@ -418,10 +297,6 @@ document.addEventListener("mousedown", function (e) {
             player.blocksBroken++;
             spawnParticles(hit.x + 0.5, hit.y + 0.5, hit.z + 0.5, getBlockColor(hit.id), CONFIG.PARTICLE_BREAK_COUNT);
             playSound(CONFIG.BLOCK_BREAK_SOUND_FREQ, CONFIG.BLOCK_BREAK_SOUND_DUR, "sawtooth");
-            if (CONFIG.DO_BLOCK_DROPS) {
-                var dropId = getBlockDef(hit.id).drops || hit.id;
-                if (typeof addToInventory === "function") addToInventory(dropId, 1);
-            }
         }
     }
 
@@ -462,41 +337,6 @@ window.addEventListener("resize", function () {
     canvas.width = W; canvas.height = H;
 });
 
-// ============ HOTBAR UI ============
-function updateHotbarUI() {
-    var slots = document.querySelectorAll(".slot");
-    for (var i = 0; i < slots.length; i++) {
-        slots[i].classList.toggle("sel", i === selectedSlot);
-    }
-}
-
-// ============ COMMAND INPUT ============
-function openCommandInput() {
-    var input = document.createElement("input");
-    input.type = "text";
-    input.style.cssText = "position:fixed;bottom:56px;left:4px;width:350px;padding:4px 8px;background:rgba(0,0,0,0.8);color:#fff;border:1px solid #555;font-family:monospace;font-size:13px;z-index:200;outline:none;";
-    input.placeholder = "Type command...";
-
-    input.onkeydown = function (ev) {
-        if (ev.code === "Enter") {
-            if (typeof handleCommand === "function") handleCommand(input.value);
-            input.remove();
-            canvas.requestPointerLock();
-        }
-        if (ev.code === "Escape") {
-            input.remove();
-            canvas.requestPointerLock();
-        }
-    };
-
-    document.body.appendChild(input);
-    input.focus();
-}
-
-// ============ START GAME ============
-console.log("Minecraft Engine Ready");
-console.log("Seed: " + CONFIG.WORLD_SEED);
-console.log("View Distance: " + CONFIG.VIEW_DISTANCE + " chunks");
-
+// ============ START ============
 preGenerateSpawn(CONFIG.VIEW_DISTANCE + 1);
 loop();
