@@ -205,7 +205,7 @@ document.addEventListener("mousedown", function (e) {
         playSound(CONFIG.BLOCK_PLACE_SOUND_FREQ, CONFIG.BLOCK_PLACE_SOUND_DUR, "square");
     }
 }
-
+});
 document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
 
 canvas.addEventListener("click", function () {
@@ -225,6 +225,9 @@ window.addEventListener("resize", function () {
     W = innerWidth; H = innerHeight;
     canvas.width = W; canvas.height = H;
 });
-
+function resumeGame() {
+    document.getElementById("pause-menu").style.display = "none";
+    canvas.requestPointerLock();
+}
 // ============ START ============
 loop();
