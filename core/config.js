@@ -214,6 +214,20 @@ var CONFIG = {
     SERVER_TICK_RATE: 20,
     NETWORK_UPDATE_INTERVAL: 50
 };
-
+// Game state (needs to exist before renderer.js loads)
+var gameState = {
+    started: false,
+    locked: false,
+    paused: false,
+    gameTime: 0,
+    tickCount: 0,
+    fps: 0,
+    fpsFrames: 0,
+    fpsLastTime: Date.now(),
+    timeOfDay: 6000,
+    currentDimension: CONFIG.DIMENSION_OVERWORLD,
+    showInventory: false,
+    showDebug: false
+};
 console.log("Config loaded - Seed: " + CONFIG.WORLD_SEED);
 console.log("View Distance: " + CONFIG.VIEW_DISTANCE + " chunks");
