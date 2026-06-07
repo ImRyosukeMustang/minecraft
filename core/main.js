@@ -11,7 +11,7 @@ canvas.width = W;
 canvas.height = H;
 
 // ============ GAME STATE ============
-
+var keys = {};
 // ============ HOTBAR ============
 var selectedSlot = 0;
 var selectedBlock = CONFIG.DEFAULT_HOTBAR[0];
@@ -187,36 +187,36 @@ document.addEventListener("mousedown", function (e) {
         }
     }
 
-    if (e.button === CONFIG.MOUSE_PLACE) {
-        var dx = hit.hx - (hit.x + 0.5), dy = hit.hy - (hit.y + 0.5), dz = hit.hz - (hit.z + 0.5);
-        var adx = Math.abs(dx), ady = Math.abs(dy), adz = Math.abs(dz);
-        var px = hit.x, py = hit.y, pz = hit.z;
-        if (adx >= ady && adx >= adz) px += dx > 0 ? 1 : -1;
-        else if (ady >= adx && ady >= adz) py += dy > 0 ? 1 : -1;
-        else pz += dz > 0 ? 1 : -1;
+   if (e.button === CONFIG.MOUSE_PLACE) {
+    var dx = hit.hx - (hit.x + 0.5), dy = hit.hy - (hit.y + 0.5), dz = hit.hz - (hit.z + 0.5);
+    var adx = Math.abs(dx), ady = Math.abs(dy), adz = Math.abs(dz);
+    var px = hit.x, py = hit.y, pz = hit.z;
+    if (adx >= ady && adx >= adz) px += dx > 0 ? 1 : -1;
+    else if (ady >= adx && ady >= adz) py += dy > 0 ? 1 : -1;
+    else pz += dz > 0 ? 1 : -1;
 
-   var blockToPlace = (inventory[selectedSlot] && inventory[selectedSlot].id) 
-    ? inventory[selectedSlot].id 
-    : CONFIG.DEFAULT_HOTBAR[selectedSlot];
-setBlock(px, py, pz, blockToPlace);
-            player.blocksPlaced++;
-            spawnParticles(px + 0.5, py + 0.5, pz + 0.5, getBlockColor(selectedBlock), CONFIG.PARTICLE_PLACE_COUNT);
-            playSound(CONFIG.BLOCK_PLACE_SOUND_FREQ, CONFIG.BLOCK_PLACE_SOUND_DUR, "square");
-        }
+    if (getBlock(px, py, pz) === BLOCKS.AIR) {
+        var blockToPlace = (inventory[selectedSlot] && inventory[selectedSlot].id)
+            ? inventory[selectedSlot].id
+            : CONFIG.DEFAULT_HOTBAR[selectedSlot];
+        setBlock(px, py, pz, blockToPlace);
+        player.blocksPlaced++;
+        spawnParticles(px + 0.5, py + 0.5, pz + 0.5, getBlockColor(blockToPlace), CONFIG.PARTICLE_PLACE_COUNT);
+        playSound(CONFIG.BLOCK_PLACE_SOUND_FREQ, CONFIG.BLOCK_PLACE_SOUND_DUR, "square");
     }
-});
+}
 
 document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
 
 canvas.addEventListener("click", function () {
     if (!gameState.started) {
         gameState.started = true;
+        initAudio();       
         initGame();
         if (typeof loadWorld === "function") loadWorld();
     }
     canvas.requestPointerLock();
 });
-
 document.addEventListener("pointerlockchange", function () {
     gameState.locked = document.pointerLockElement === canvas;
 });
