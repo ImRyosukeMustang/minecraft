@@ -93,7 +93,7 @@ function loadWorld() {
 
         // Restore world seed
         if (data.seed) CONFIG.WORLD_SEED = data.seed;
-        WORLD_SEED = data.seed;
+        CONFIG.WORLD_SEED = data.seed;
 
         // Restore player
         if (data.player) {
