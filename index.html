@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%235a8a3c'/><rect x='2' y='2' width='12' height='12' fill='%238b6b3b'/></svg>">
+</head>
+<body>
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Overlay UI -->
+    <div id="overlay">
+        <!-- Info Bar (top left) -->
+        <div id="info"></div>
+
+        <!-- FPS Counter (top right) -->
+        <div id="fps"></div>
+
+        <!-- Chat Display -->
+        <div id="chat"></div>
+
+        <!-- Debug Screen (hidden by default) -->
+        <div id="debug"></div>
+
+        <!-- Notification Popup -->
+        <div id="notification"></div>
+
+        <!-- Boss Bar -->
+        <div id="boss-bar">
+            <div id="boss-bar-background">
+                <div id="boss-bar-fill" style="width:100%"></div>
+            </div>
+            <div id="boss-bar-text"></div>
+        </div>
+
+        <!-- Hotbar -->
+        <div id="hotbar">
+            <div class="slot sel" data-s="0"><span class="key">1</span><span class="count"></span></div>
+            <div class="slot" data-s="1"><span class="key">2</span><span class="count"></span></div>
+            <div class="slot" data-s="2"><span class="key">3</span><span class="count"></span></div>
+            <div class="slot" data-s="3"><span class="key">4</span><span class="count"></span></div>
+            <div class="slot" data-s="4"><span class="key">5</span><span class="count"></span></div>
+            <div class="slot" data-s="5"><span class="key">6</span><span class="count"></span></div>
+            <div class="slot" data-s="6"><span class="key">7</span><span class="count"></span></div>
+            <div class="slot" data-s="7"><span class="key">8</span><span class="count"></span></div>
+            <div class="slot" data-s="8"><span class="key">9</span><span class="count"></span></div>
+        </div>
+
+        <!-- Inventory Screen (hidden by default) -->
+        <div id="inventory-screen">
+            <div id="armor-slots">
+                <div class="armor-slot" title="Boots"></div>
+                <div class="armor-slot" title="Leggings"></div>
+                <div class="armor-slot" title="Chestplate"></div>
+                <div class="armor-slot" title="Helmet"></div>
+            </div>
+
+            <div id="player-preview">Player</div>
+
+            <div class="inv-section-title">Crafting</div>
+            <div id="crafting-grid">
+                <div class="craft-slot"></div>
+                <div class="craft-slot"></div>
+                <div class="craft-slot"></div>
+                <div class="craft-slot"></div>
+            </div>
+            <div id="crafting-result" onclick="craftRecipe(currentCraftingRecipe)">→</div>
+
+            <div class="inv-section-title">Inventory</div>
+            <div class="inv-grid" id="inv-grid"></div>
+
+            <div class="inv-section-title">Hotbar</div>
+            <div class="inv-hotbar" id="inv-hotbar-row"></div>
+
+            <div id="available-recipes"></div>
+        </div>
+
+        <!-- Pause Menu (hidden by default) -->
+        <div id="pause-menu">
+            <div class="pause-title">Game Menu</div>
+            <button class="pause-btn" onclick="resumeGame()">Back to Game</button>
+            <button class="pause-btn" onclick="saveWorld(); addChat('World saved!')">Save Game</button>
+            <button class="pause-btn" onclick="loadWorld(); addChat('World loaded!')">Load Game</button>
+            <button class="pause-btn" onclick="exportSave()">Export Save</button>
+            <button class="pause-btn" onclick="location.reload()">Quit to Title</button>
+        </div>
+    </div>
+
+    <!-- ============ GAME SCRIPTS (Load Order Matters!) ============ -->
+    
+    <!-- Core -->
+    <script src="core/config.js"></script>
+    <script src="core/utils.js"></script>
+
+    <!-- World -->
+    <script src="world/blocks.js"></script>
+    <script src="world/world.js"></script>
+
+    <!-- Player -->
+    <script src="player/player.js"></script>
+    <script src="player/inventory.js"></script>
+
+    <!-- Entities -->
+    <script src="entities/entities.js"></script>
+
+    <!-- Systems -->
+    <script src="systems/particles.js"></script>
+    <script src="systems/weather.js"></script>
+    <script src="systems/audio.js"></script>
+    <script src="systems/commands.js"></script>
+    <script src="systems/save.js"></script>
+    <script src="systems/ui.js"></script>
+
+    <!-- Renderer -->
+    <script src="renderer/renderer.js"></script>
+
+    <!-- Game Loop (must be last) -->
+    <script src="core/main.js"></script>
+
+    <!-- Worker (optional, loaded separately) -->
+    <!-- <script>initChunkWorker();</script> -->
+</body>
+</html>
