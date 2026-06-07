@@ -7,7 +7,6 @@
 var CHUNK_SIZE = 16;
 var WORLD_HEIGHT = 128;
 var SEA_LEVEL = 50;
-var VIEW_DISTANCE = 5;
 var MAX_LOADED_CHUNKS = 200;
 
 // ============ DIMENSIONS ============
@@ -358,7 +357,7 @@ function unloadDistantChunks() {
         var cx = parseInt(parts[0]);
         var cz = parseInt(parts[1]);
         
-        if (Math.abs(cx - pcx) > VIEW_DISTANCE + 3 || Math.abs(cz - pcz) > VIEW_DISTANCE + 3) {
+       if (Math.abs(cx - pcx) > CONFIG.VIEW_DISTANCE + 3 || Math.abs(cz - pcz) > CONFIG.VIEW_DISTANCE + 3)
             delete chunks[key];
         }
     }
