@@ -85,41 +85,7 @@ function update() {
     }
 }
 
-function render() {
-    ctx.clearRect(0, 0, W, H);
 
-    renderSky();
-
-    if (!gameState.started) {
-        renderTitleScreen();
-        return;
-    }
-
-    renderWorld();
-
-    if (CONFIG.RENDER_WEATHER) renderWeather();
-
-    if (CONFIG.RENDER_ENTITIES) renderEntities();
-
-    if (CONFIG.RENDER_PARTICLES) renderParticles();
-
-    if (gameState.locked && !gameState.showInventory) {
-        renderHUD();
-    }
-
-    if (gameState.showInventory) renderInventoryScreen();
-
-    if (gameState.showDebug) renderDebugScreen();
-
-    renderChat();
-    updateInfoDisplay();
-}
-
-function loop() {
-    update();
-    render();
-    requestAnimationFrame(loop);
-}
 
 // ============ SKY ============
 
