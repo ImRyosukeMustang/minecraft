@@ -3,45 +3,6 @@
 // Terrain, chunks, biomes, caves, structures
 // ============================================
 
-// ============ WORLD SEED ============
-var WORLD_SEED = Math.floor(Math.random() * 2147483647);
-
-// ============ RNG (32-bit safe, deterministic) ============
-function seededRandom(x, y, z, seed) {
-    if (typeof z === "undefined") z = 0;
-    if (typeof seed === "undefined") seed = WORLD_SEED;
-    var n = (((x * 374761393) | 0) + ((y * 668265263) | 0) + ((z * 1274126177) | 0) + ((seed * 1013904223) | 0)) | 0;
-    n = ((n ^ (n >>> 13)) * 1274126177) | 0;
-    return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
-}
-
-// ============ PERLIN NOISE ============
-function smoothNoise(x, z, seed) {
-    if (typeof seed === "undefined") seed = WORLD_SEED;
-    var ix = Math.floor(x), iz = Math.floor(z);
-    var fx = x - ix, fz = z - iz;
-    var sx = fx * fx * (3 - 2 * fx);
-    var sz = fz * fz * (3 - 2 * fz);
-    var n00 = seededRandom(ix, iz, 0, seed);
-    var n10 = seededRandom(ix + 1, iz, 0, seed);
-    var n01 = seededRandom(ix, iz + 1, 0, seed);
-    var n11 = seededRandom(ix + 1, iz + 1, 0, seed);
-    return n00 * (1 - sx) * (1 - sz) + n10 * sx * (1 - sz) + n01 * (1 - sx) * sz + n11 * sx * sz;
-}
-
-function octaveNoise(x, z, octaves, seed) {
-    if (typeof octaves === "undefined") octaves = 4;
-    if (typeof seed === "undefined") seed = WORLD_SEED;
-    var value = 0, amplitude = 1, frequency = 1, maxValue = 0;
-    for (var i = 0; i < octaves; i++) {
-        value += smoothNoise(x * frequency, z * frequency, seed + i * 1000) * amplitude;
-        maxValue += amplitude;
-        amplitude *= 0.5;
-        frequency *= 2;
-    }
-    return value / maxValue;
-}
-
 // ============ WORLD CONSTANTS ============
 var CHUNK_SIZE = 16;
 var WORLD_HEIGHT = 128;
@@ -89,8 +50,8 @@ function getBiome(x, z, dim) {
     if (dim === DIMENSION.NETHER) return BIOMES.HELL;
     if (dim === DIMENSION.END) return BIOMES.END_VOID;
     
-    var temp = octaveNoise(x * 0.0005, z * 0.0005, 4, WORLD_SEED);
-    var rain = octaveNoise(x * 0.0005 + 500, z * 0.0005 + 500, 4, WORLD_SEED);
+    var temp = octaveNoise(x * 0.0005, z * 0.0005, 4, CONFIG.WORLD_SEED);
+    var rain = octaveNoise(x * 0.0005 + 500, z * 0.0005 + 500, 4, CONFIG.WORLD_SEED);
     var height = getTerrainHeight(x, z);
     
     if (height <= SEA_LEVEL) return BIOMES.OCEAN;
@@ -111,17 +72,17 @@ function getTerrainHeight(x, z, dim) {
     if (typeof dim === "undefined") dim = currentDimension;
     
     if (dim === DIMENSION.NETHER) {
-        return Math.floor(40 + octaveNoise(x * 0.03, z * 0.03, 3, WORLD_SEED + 999) * 50);
+        return Math.floor(40 + octaveNoise(x * 0.03, z * 0.03, 3, CONFIG.WORLD_SEED + 999) * 50);
     }
     if (dim === DIMENSION.END) {
-        return Math.floor(55 + octaveNoise(x * 0.02, z * 0.02, 2, WORLD_SEED + 888) * 15);
+        return Math.floor(55 + octaveNoise(x * 0.02, z * 0.02, 2, CONFIG.WORLD_SEED + 888) * 15);
     }
     
     var base = 50;
-    var continentalness = octaveNoise(x * 0.0003, z * 0.0003, 6, WORLD_SEED);
-    var hills = octaveNoise(x * 0.005, z * 0.005, 5, WORLD_SEED + 100) * 15;
-    var mountains = octaveNoise(x * 0.003, z * 0.003, 4, WORLD_SEED + 200) * 40;
-    var details = octaveNoise(x * 0.05, z * 0.05, 3, WORLD_SEED + 300) * 3;
+    var continentalness = octaveNoise(x * 0.0003, z * 0.0003, 6, CONFIG.WORLD_SEED);
+    var hills = octaveNoise(x * 0.005, z * 0.005, 5, CONFIG.WORLD_SEED + 100) * 15;
+    var mountains = octaveNoise(x * 0.003, z * 0.003, 4, CONFIG.WORLD_SEED + 200) * 40;
+    var details = octaveNoise(x * 0.05, z * 0.05, 3, CONFIG.WORLD_SEED + 300) * 3;
     
     var height = base + continentalness * 25 + hills + details;
     
@@ -134,9 +95,9 @@ function getTerrainHeight(x, z, dim) {
 
 // ============ CAVE GENERATION ============
 function isCave(wx, wy, wz) {
-    var caveNoise1 = octaveNoise(wx * 0.05, wz * 0.05, 3, WORLD_SEED + 500);
-    var caveNoise2 = octaveNoise(wx * 0.1, wy * 0.1, 3, WORLD_SEED + 600);
-    var caveNoise3 = octaveNoise(wz * 0.1, wy * 0.1, 3, WORLD_SEED + 700);
+    var caveNoise1 = octaveNoise(wx * 0.05, wz * 0.05, 3, CONFIG.WORLD_SEED + 500);
+    var caveNoise2 = octaveNoise(wx * 0.1, wy * 0.1, 3, CONFIG.WORLD_SEED + 600);
+    var caveNoise3 = octaveNoise(wz * 0.1, wy * 0.1, 3, CONFIG.WORLD_SEED + 700);
     
     var caveValue = (caveNoise1 + caveNoise2 + caveNoise3) / 3;
     
@@ -295,7 +256,7 @@ function generateChunk(cx, cz, dim) {
                     } else if (y < terrainHeight - 4) {
                         block = BLOCKS.STONE;
                         // Ore generation
-                        var oreRoll = seededRandom(wx, y, wz, WORLD_SEED + 400);
+                        var oreRoll = seededRandom(wx, y, wz, CONFIG.WORLD_SEED + 400);
                         if (oreRoll > 0.998 && y < 16) block = BLOCKS.DIAMOND_ORE;
                         else if (oreRoll > 0.994 && y < 32) block = BLOCKS.GOLD_ORE;
                         else if (oreRoll > 0.988 && y < 64) block = BLOCKS.IRON_ORE;
@@ -321,10 +282,10 @@ function generateChunk(cx, cz, dim) {
                         block = BLOCKS.BEDROCK;
                     } else if (y < terrainHeight) {
                         block = BLOCKS.NETHERRACK;
-                        var netherRoll = seededRandom(wx, y, wz, WORLD_SEED + 800);
+                        var netherRoll = seededRandom(wx, y, wz, CONFIG.WORLD_SEED + 800);
                         if (netherRoll > 0.97) block = BLOCKS.NETHER_QUARTZ_ORE;
                         if (netherRoll > 0.96 && netherRoll < 0.97) block = BLOCKS.GLOWSTONE;
-                    } else if (y < 100 && seededRandom(wx, y, wz, WORLD_SEED + 802) > 0.98) {
+                    } else if (y < 100 && seededRandom(wx, y, wz, CONFIG.WORLD_SEED + 802) > 0.98) {
                         block = BLOCKS.GLOWSTONE;
                     }
                 }
@@ -403,4 +364,4 @@ function unloadDistantChunks() {
     }
 }
 
-console.log("World engine loaded - Seed: " + WORLD_SEED);
+console.log("World engine loaded - Seed: " + CONFIG.WORLD_SEED);
