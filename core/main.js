@@ -11,23 +11,6 @@ canvas.width = W;
 canvas.height = H;
 
 // ============ GAME STATE ============
-var gameState = {
-    started: false,
-    locked: false,
-    paused: false,
-    gameTime: 0,
-    tickCount: 0,
-    fps: 0,
-    fpsFrames: 0,
-    fpsLastTime: Date.now(),
-    timeOfDay: 6000,
-    currentDimension: CONFIG.DIMENSION_OVERWORLD,
-    showInventory: false,
-    showDebug: false
-};
-
-var keys = {};
-var currentDimension = CONFIG.DIMENSION_OVERWORLD;
 
 // ============ HOTBAR ============
 var selectedSlot = 0;
@@ -42,31 +25,8 @@ function addChat(msg) {
 }
 
 // ============ AUDIO ============
-function initAudio() {
-    try {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    } catch (e) {
-        audioCtx = null;
-    }
-}
 
-function playSound(freq, dur, type, vol) {
-    if (!audioCtx) return;
-    if (!type) type = "square";
-    if (!vol) vol = CONFIG.SFX_VOLUME;
-    try {
-        var osc = audioCtx.createOscillator();
-        var gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.type = type;
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
-        osc.start(audioCtx.currentTime);
-        osc.stop(audioCtx.currentTime + dur);
-    } catch (e) {}
-}
+
 
 // ============ INITIALIZATION ============
 function initGame() {
@@ -164,18 +124,6 @@ function loop() {
 // ============ SKY ============
 
 // ============ TITLE SCREEN ============
-function renderTitleScreen() {
-    ctx.fillStyle = "rgba(0,0,0,0.8)";
-    ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = "#fff";
-    ctx.font = "bold 48px 'Courier New'";
-    ctx.textAlign = "center";
-    ctx.fillText("Minecraft", W / 2, H / 2 - 60);
-    ctx.font = "16px 'Courier New'";
-    ctx.fillText("Click to Play", W / 2, H / 2);
-    ctx.fillText("Seed: " + CONFIG.WORLD_SEED, W / 2, H / 2 + 25);
-    ctx.textAlign = "start";
-}
 
 // ============ MOB SPAWNING ============
 function spawnAmbientMobs() {
