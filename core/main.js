@@ -162,35 +162,6 @@ function loop() {
 }
 
 // ============ SKY ============
-function renderSky() {
-    var t = gameState.timeOfDay;
-    var dim = currentDimension;
-    var top, bottom;
-
-    if (dim === CONFIG.DIMENSION_NETHER) {
-        top = CONFIG.SKY_NETHER_TOP;
-        bottom = CONFIG.SKY_NETHER_BOTTOM;
-    } else if (dim === CONFIG.DIMENSION_END) {
-        top = CONFIG.SKY_END_TOP;
-        bottom = CONFIG.SKY_END_BOTTOM;
-    } else {
-        var isNight = (t < CONFIG.SUNRISE_END || t > CONFIG.SUNSET_END);
-        if (isNight) {
-            top = CONFIG.SKY_NIGHT_TOP;
-            bottom = CONFIG.SKY_NIGHT_BOTTOM;
-        } else {
-            top = CONFIG.SKY_DAY_TOP;
-            bottom = CONFIG.SKY_DAY_BOTTOM;
-        }
-    }
-
-    var grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, top);
-    grad.addColorStop(0.5, bottom);
-    grad.addColorStop(1, dim === CONFIG.DIMENSION_NETHER ? "#3a1a1a" : dim === CONFIG.DIMENSION_END ? "#1a1a2a" : "#7ec850");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-}
 
 // ============ TITLE SCREEN ============
 function renderTitleScreen() {
