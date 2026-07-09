@@ -134,8 +134,7 @@ function renderTitleScreen() {
 
     ctx.textAlign = "start";
 }
-
-// ============ WORLD RENDERING ============
+// ============ WORLD RENDERING (with mesh caching) ============
 function renderWorld() {
     var cosY = Math.cos(player.yaw), sinY = Math.sin(player.yaw);
     var fov = CONFIG.FOV;
@@ -143,49 +142,47 @@ function renderWorld() {
 
     for (var ci = 0; ci < visibleChunks.length; ci++) {
         var ch = visibleChunks[ci];
-        var data = ch.chunk.data;
-        var wx = ch.cx * CHUNK_SIZE;
-        var wz = ch.cz * CHUNK_SIZE;
-
-        for (var x = 0; x < CHUNK_SIZE; x++) {
-            for (var z = 0; z < CHUNK_SIZE; z++) {
-                var worldX = wx + x;
-                var worldZ = wz + z;
-                var colDX = worldX + 0.5 - player.x;
-                var colDZ = worldZ + 0.5 - player.z;
-                var colRZ = colDX * sinY + colDZ * cosY;
-                if (colRZ <= 0.1) continue;
-
-                for (var y = 0; y < WORLD_HEIGHT; y++) {
-                    var blockId = data[x + y * CHUNK_SIZE + z * CHUNK_SIZE * WORLD_HEIGHT];
-                    if (blockId === BLOCKS.AIR) continue;
-
-                    var def = getBlockDef(blockId);
-                    if (!def || (def.transparent && blockId !== BLOCKS.GLASS && blockId !== BLOCKS.ICE && blockId !== BLOCKS.OAK_LEAVES)) continue;
-
-                    // Face culling
-                    if (def.solid && !isExposed(worldX, y, worldZ)) continue;
-
-                    var wY = y + 0.5;
-                    var pdx = worldX + 0.5 - player.x;
-                    var pdy = wY - (player.y + player.eyeHeight);
-                    var pdz = worldZ + 0.5 - player.z;
-
-                    var prx = pdx * cosY - pdz * sinY;
-                    var prz = pdx * sinY + pdz * cosY;
-                    if (prz <= 0.1) continue;
-
-                    var scale = H / (prz * Math.tan(fov / 2));
-                    var screenX = W / 2 + prx * scale;
-                    var screenY = H / 2 - pdy * scale;
-                    var size = scale;
-
-                    if (screenX + size < -50 || screenX - size > W + 50 || screenY + size < -50 || screenY - size > H + 50) continue;
-
-// Render block with texture or color
- renderBlockFace(screenX, screenY, size, blockId, def);
-                }
-            }
+        var chunk = ch.chunk;
+        
+        // Build mesh if needed
+        if (chunk.meshDirty || !chunk.mesh) {
+            buildChunkMesh(chunk);
+        }
+        
+        // Skip if no mesh
+        if (!chunk.mesh) continue;
+        
+        var mesh = chunk.mesh;
+        
+        for (var mi = 0; mi < mesh.length; mi++) {
+            var block = mesh[mi];
+            var worldX = block.x;
+            var worldZ = block.z;
+            var blockId = block.id;
+            var def = getBlockDef(blockId);
+            
+            var colDX = worldX - player.x;
+            var colDZ = worldZ - player.z;
+            var colRZ = colDX * sinY + colDZ * cosY;
+            if (colRZ <= 0.1) continue;
+            
+            var wY = block.y;
+            var pdx = worldX - player.x;
+            var pdy = wY - (player.y + player.eyeHeight);
+            var pdz = worldZ - player.z;
+            
+            var prx = pdx * cosY - pdz * sinY;
+            var prz = pdx * sinY + pdz * cosY;
+            if (prz <= 0.1) continue;
+            
+            var scale = H / (prz * Math.tan(fov / 2));
+            var screenX = W / 2 + prx * scale;
+            var screenY = H / 2 - pdy * scale;
+            var size = scale;
+            
+            if (screenX + size < -50 || screenX - size > W + 50 || screenY + size < -50 || screenY - size > H + 50) continue;
+            
+            renderBlockFace(screenX, screenY, size, blockId, def);
         }
     }
 }
