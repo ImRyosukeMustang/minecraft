@@ -359,4 +359,75 @@ function unloadDistantChunks() {
         }
     }
 }
+// ============ CHUNK MESH SYSTEM ============
+
+// Build a render mesh for a chunk
+function buildChunkMesh(chunk) {
+    if (!chunk || !chunk.data) return;
+    
+    var mesh = [];
+    var data = chunk.data;
+    var cx = chunk.cx;
+    var cz = chunk.cz;
+    var wx = cx * CHUNK_SIZE;
+    var wz = cz * CHUNK_SIZE;
+    
+    for (var x = 0; x < CHUNK_SIZE; x++) {
+        for (var z = 0; z < CHUNK_SIZE; z++) {
+            var worldX = wx + x;
+            var worldZ = wz + z;
+            
+            for (var y = 0; y < WORLD_HEIGHT; y++) {
+                var blockId = data[x + y * CHUNK_SIZE + z * CHUNK_SIZE * WORLD_HEIGHT];
+                if (blockId === BLOCKS.AIR) continue;
+                
+                var def = getBlockDef(blockId);
+                if (!def || !def.solid) continue;
+                
+                // Check if exposed
+                if (!isBlockExposed(worldX, y, worldZ)) continue;
+                
+                // Add to mesh
+                mesh.push({
+                    x: worldX + 0.5,
+                    y: y + 0.5,
+                    z: worldZ + 0.5,
+                    id: blockId
+                });
+            }
+        }
+    }
+    
+    chunk.mesh = mesh;
+    chunk.meshDirty = false;
+}
+
+// Check if a block has any exposed faces
+function isBlockExposed(wx, wy, wz) {
+    if (isTransparent(getBlock(wx, wy + 1, wz))) return true;
+    if (isTransparent(getBlock(wx, wy - 1, wz))) return true;
+    if (isTransparent(getBlock(wx, wy, wz - 1))) return true;
+    if (isTransparent(getBlock(wx, wy, wz + 1))) return true;
+    if (isTransparent(getBlock(wx + 1, wy, wz))) return true;
+    if (isTransparent(getBlock(wx - 1, wy, wz))) return true;
+    return false;
+}
+
+// Mark chunk for mesh rebuild
+function markChunkDirty(x, y, z) {
+    var cx = worldToChunk(x);
+    var cz = worldToChunk(z);
+    var key = chunkKey(cx, cz);
+    var chunk = getCurrentChunks()[key];
+    if (chunk) {
+        chunk.meshDirty = true;
+    }
+}
+
+// Override setBlock to mark chunks dirty
+var originalSetBlock = setBlock;
+setBlock = function(x, y, z, id, dim) {
+    originalSetBlock(x, y, z, id, dim);
+    markChunkDirty(x, y, z);
+};
 console.log("World engine loaded - Seed: " + CONFIG.WORLD_SEED);
