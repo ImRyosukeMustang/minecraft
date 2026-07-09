@@ -3,13 +3,16 @@
 // World, entities, particles, weather, lighting
 // ============================================
 
+// Texture atlas image (loaded once, not every frame)
+var textureAtlas = new Image();
+textureAtlas.src = "atlas.png";
+
 // ============ MAIN RENDER FUNCTION ============
 function render() {
     ctx.clearRect(0, 0, W, H);
 
     // Sky
     renderSky();
-
     // Title screen
     if (!gameState.started) {
         renderTitleScreen();
@@ -179,42 +182,8 @@ function renderWorld() {
 
                     if (screenX + size < -50 || screenX - size > W + 50 || screenY + size < -50 || screenY - size > H + 50) continue;
 
-                    // Get color
-                    var col = def.color || "#888888";
-
-                    // Top color (grass, logs, etc.)
-                    if (def.topColor && y + 1 < WORLD_HEIGHT) {
-                        var aboveId = data[x + (y + 1) * CHUNK_SIZE + z * CHUNK_SIZE * WORLD_HEIGHT];
-                        if (isTransparent(aboveId)) col = def.topColor;
-                    }
-
-                    // Night darkness
-                    if (currentDimension === CONFIG.DIMENSION_OVERWORLD && gameState.timeOfDay > CONFIG.NIGHT_START && gameState.timeOfDay < CONFIG.NIGHT_END) {
-                        var nightFactor = gameState.timeOfDay < 18000 ? (gameState.timeOfDay - CONFIG.NIGHT_START) / 5000 : 1 - (gameState.timeOfDay - 18000) / 5000;
-                        col = darkenColor(col, 1 - nightFactor * CONFIG.NIGHT_DARKNESS_FACTOR);
-                    }
-
-                    // Nether dim light
-                    if (currentDimension === CONFIG.DIMENSION_NETHER) {
-                        col = darkenColor(col, 0.8);
-                    }
-
-                    // Render block
-                    if (def.transparent && def.opacity) {
-                        ctx.globalAlpha = def.opacity;
-                    }
-
-                    ctx.fillStyle = col;
-                    ctx.fillRect(screenX - size / 2, screenY - size / 2, size, size);
-
-                    // Block outline
-                    if (CONFIG.SHOW_BLOCK_OUTLINES && size > 6 && !def.transparent) {
-                        ctx.strokeStyle = CONFIG.BLOCK_OUTLINE_COLOR;
-                        ctx.lineWidth = CONFIG.BLOCK_OUTLINE_WIDTH;
-                        ctx.strokeRect(screenX - size / 2, screenY - size / 2, size, size);
-                    }
-
-                    ctx.globalAlpha = 1;
+// Render block with texture or color
+ renderBlockFace(screenX, screenY, size, blockId, def);
                 }
             }
         }
@@ -251,5 +220,72 @@ function getVisibleChunks() {
     list.sort(function (a, b) { return b.dist - a.dist; });
     return list;
 }
+// ============ RENDER BLOCK FACE WITH TEXTURE ============
+function renderBlockFace(screenX, screenY, size, blockId, def) {
+    // Try texture atlas first
+    if (textureAtlas && textureAtlas.complete && textureAtlas.naturalWidth > 0 && def && def.textures) {
+        var tex = def.textures.side || def.textures.top || [0, 0];
+        var texX = tex[0] * 16;
+        var texY = tex[1] * 16;
 
+        // Apply night darkness via globalAlpha
+        var alpha = 1.0;
+        if (def.transparent && def.opacity) {
+            alpha = def.opacity;
+        }
+
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(
+            textureAtlas,
+            texX, texY, 16, 16,
+            screenX - size / 2, screenY - size / 2, size, size
+        );
+
+        // Block outline
+        if (CONFIG.SHOW_BLOCK_OUTLINES && size > 6 && !def.transparent) {
+            ctx.strokeStyle = CONFIG.BLOCK_OUTLINE_COLOR;
+            ctx.lineWidth = CONFIG.BLOCK_OUTLINE_WIDTH;
+            ctx.strokeRect(screenX - size / 2, screenY - size / 2, size, size);
+        }
+
+        ctx.globalAlpha = 1;
+        return;
+    }
+
+    // Fallback to flat color
+    var col = def.color || "#888888";
+
+    // Top color (grass, logs)
+    if (def.topColor) {
+        col = def.topColor;
+    }
+
+    // Night darkness
+    if (currentDimension === CONFIG.DIMENSION_OVERWORLD && gameState.timeOfDay > CONFIG.NIGHT_START && gameState.timeOfDay < CONFIG.NIGHT_END) {
+        var nightFactor = gameState.timeOfDay < 18000 ? (gameState.timeOfDay - CONFIG.NIGHT_START) / 5000 : 1 - (gameState.timeOfDay - 18000) / 5000;
+        col = darkenColor(col, 1 - nightFactor * CONFIG.NIGHT_DARKNESS_FACTOR);
+    }
+
+    // Nether dim
+    if (currentDimension === CONFIG.DIMENSION_NETHER) {
+        col = darkenColor(col, 0.8);
+    }
+
+    // Render
+    if (def.transparent && def.opacity) {
+        ctx.globalAlpha = def.opacity;
+    }
+
+    ctx.fillStyle = col;
+    ctx.fillRect(screenX - size / 2, screenY - size / 2, size, size);
+
+    // Block outline
+    if (CONFIG.SHOW_BLOCK_OUTLINES && size > 6 && !def.transparent) {
+        ctx.strokeStyle = CONFIG.BLOCK_OUTLINE_COLOR;
+        ctx.lineWidth = CONFIG.BLOCK_OUTLINE_WIDTH;
+        ctx.strokeRect(screenX - size / 2, screenY - size / 2, size, size);
+    }
+
+    ctx.globalAlpha = 1;
+}
 console.log("Renderer loaded - Canvas 2D pipeline ready");
