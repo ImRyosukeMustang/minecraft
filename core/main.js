@@ -233,5 +233,16 @@ function resumeGame() {
     canvas.requestPointerLock();
 }
 
+// ============ GAME LOOP ============
+function loop() {
+    update();
+
+    if (typeof render === "function") {
+        render();
+    }
+
+    requestAnimationFrame(loop);
+}
+
 // ============ START ============
 loop();
