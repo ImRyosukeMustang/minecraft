@@ -12,7 +12,10 @@ var CONFIG = {
     VIEW_DISTANCE: 5,
     MAX_LOADED_CHUNKS: 200,
     CHUNK_UNLOAD_INTERVAL: 80,
-
+    
+    // Chunk meshing
+    USE_CHUNK_MESH: true,
+    
     // ============ DIMENSIONS ============
     DIMENSION_OVERWORLD: 0,
     DIMENSION_NETHER: -1,
