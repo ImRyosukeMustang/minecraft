@@ -2,7 +2,7 @@
 // MINECRAFT - MAIN GAME LOOP
 // Connects all systems, runs the game
 // ============================================
-
+var usingWebGPU = false;
 // ============ CANVAS SETUP ============
 var canvas = document.getElementById("gameCanvas");
 var ctx = canvas.getContext("2d");
