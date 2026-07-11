@@ -2,6 +2,7 @@
 // MINECRAFT - WebGPU RENDERER (Full Updated)
 // GPU-accelerated replacement for Canvas 2D
 // ============================================
+console.log("WebGPU script loaded - canvas ID check:", document.getElementById("gameCanvas") ? "found" : "MISSING");
 var canvas = document.getElementById("gameCanvas");
 
 var gpuDevice = null;
