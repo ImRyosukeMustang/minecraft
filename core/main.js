@@ -3,6 +3,20 @@
 // Connects all systems, runs the game
 // ============================================
 var usingWebGPU = false;
+
+var gameState = {
+    started: false,
+    locked: false,
+    paused: false,
+    gameTime: 0,
+    tickCount: 0,
+    fps: 0,
+    fpsFrames: 0,
+    fpsLastTime: Date.now(),
+    timeOfDay: 6000,
+    showInventory: false,
+    showDebug: false
+};
 // ============ CANVAS SETUP ============
 var canvas = document.getElementById("gameCanvas");
 var ctx = canvas.getContext("2d");
@@ -36,7 +50,7 @@ function initGame() {
    
     if (typeof initWebGPU === "function") {
         initWebGPU();
-    
+    }
     addChat("Welcome to Minecraft!");
     addChat("Seed: " + CONFIG.WORLD_SEED);
     addChat("WASD: Move | Mouse: Look | Click: Mine/Place");
