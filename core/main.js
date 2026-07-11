@@ -236,11 +236,13 @@ function resumeGame() {
 // ============ GAME LOOP ============
 function loop() {
     update();
-
-    if (typeof render === "function") {
+    
+    if (usingWebGPU && gpuDevice) {
+        renderWebGPU();
+    } else {
         render();
     }
-
+    
     requestAnimationFrame(loop);
 }
 
