@@ -1,5 +1,5 @@
 /* ============================================
-   MINECRAFT - COMPLETE STYLESHEET
+   MINECRAFT - COMPLETE STYLESHEET (CORRECTED)
    ============================================ */
 
 /* ============ RESET ============ */
@@ -18,8 +18,9 @@ body {
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
     image-rendering: pixelated;
-    image-rendering: crisp-edges;
 }
 
 /* ============ CANVAS ============ */
@@ -28,8 +29,9 @@ body {
     position: absolute;
     top: 0;
     left: 0;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
     image-rendering: pixelated;
-    image-rendering: crisp-edges;
 }
 
 /* ============ OVERLAY ============ */
@@ -48,10 +50,10 @@ body {
     position: absolute;
     top: 8px;
     left: 8px;
-    color: #ffffff;
+    color: #fff;
     font-size: 11px;
     font-family: 'Courier New', monospace;
-    text-shadow: 1px 1px 0 #000000;
+    text-shadow: 1px 1px 0 #000;
     pointer-events: none;
     z-index: 15;
 }
@@ -61,20 +63,20 @@ body {
     position: absolute;
     top: 8px;
     right: 8px;
-    color: #ffff00;
+    color: #ff0;
     font-size: 11px;
     font-family: 'Courier New', monospace;
-    text-shadow: 1px 1px 0 #000000;
+    text-shadow: 1px 1px 0 #000;
     pointer-events: none;
-    z-index: 15;
+    z-index: 20; /* Brought above minimap bounds */
 }
 
 /* ============ CHAT ============ */
 #chat {
     position: absolute;
-    bottom: 68px;
+    bottom: 86px; /* Raised slightly to prevent overlapping hotbar components */
     left: 4px;
-    color: #ffffff;
+    color: #fff;
     font-size: 12px;
     width: 500px;
     max-height: 160px;
@@ -85,7 +87,7 @@ body {
 }
 
 .cmsg {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0,0,0,0.5);
     padding: 1px 6px;
     margin: 1px 0;
     border-radius: 2px;
@@ -94,14 +96,8 @@ body {
 }
 
 @keyframes chatSlide {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* ============ DEBUG SCREEN ============ */
@@ -111,8 +107,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    color: #00ff00;
+    background: rgba(0,0,0,0.85);
+    color: #0f0;
     font-family: 'Courier New', monospace;
     font-size: 11px;
     line-height: 1.5;
@@ -129,8 +125,8 @@ body {
     position: absolute;
     top: 30%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    color: #ffffff;
+    transform: translate(-50%,-50%);
+    color: #fff;
     font-size: 22px;
     font-weight: bold;
     text-shadow: 3px 3px 0 #3f3f3f;
@@ -139,23 +135,14 @@ body {
     z-index: 25;
     text-align: center;
     white-space: nowrap;
+    animation: titlePop 3s ease-in-out forwards; /* Fixed: Attached missing animation link */
 }
 
 @keyframes titlePop {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(3);
-    }
-    15% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-    80% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
+    0% { opacity: 0; transform: translate(-50%,-50%) scale(3); }
+    15% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
 /* ============ BOSS BAR ============ */
@@ -173,22 +160,22 @@ body {
 #boss-bar-background {
     width: 100%;
     height: 14px;
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid #555555;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid #555;
 }
 
 #boss-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #cc00cc, #ff00ff);
+    background: linear-gradient(90deg, #c0c, #f0f);
     transition: width 0.3s;
 }
 
 #boss-bar-text {
-    color: #ffffff;
+    color: #fff;
     font-size: 11px;
     text-align: center;
     margin-top: 2px;
-    text-shadow: 1px 1px 0 #000000;
+    text-shadow: 1px 1px 0 #000;
     font-family: 'Courier New', monospace;
 }
 
@@ -200,8 +187,8 @@ body {
     transform: translateX(-50%);
     display: flex;
     gap: 0;
-    background: rgba(0, 0, 0, 0.6);
-    border: 2px solid #000000;
+    background: rgba(0,0,0,0.6);
+    border: 2px solid #000;
     padding: 2px;
     pointer-events: all;
     z-index: 30;
@@ -210,26 +197,28 @@ body {
 .slot {
     width: 48px;
     height: 48px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 2px solid #000000;
+    background: rgba(0,0,0,0.3);
+    border: 2px solid #000;
     cursor: pointer;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.1s ease;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
     image-rendering: pixelated;
 }
 
 .slot:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: #aaaaaa;
+    background: rgba(255,255,255,0.15);
+    border-color: #aaa;
 }
 
 .slot.sel {
-    background: rgba(255, 255, 255, 0.3) !important;
-    border-color: #ffffff !important;
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.3), inset 0 0 8px rgba(255, 255, 255, 0.1);
+    background: rgba(255,255,255,0.3) !important;
+    border-color: #fff !important;
+    box-shadow: 0 0 12px rgba(255,255,255,0.3), inset 0 0 8px rgba(255,255,255,0.1);
     transform: translateY(-6px);
 }
 
@@ -237,10 +226,10 @@ body {
     position: absolute;
     top: 1px;
     left: 4px;
-    color: #cccccc;
+    color: #ccc;
     font-size: 10px;
     font-weight: bold;
-    text-shadow: 1px 1px 0 #000000;
+    text-shadow: 1px 1px 0 #000;
     pointer-events: none;
 }
 
@@ -248,10 +237,10 @@ body {
     position: absolute;
     bottom: 1px;
     right: 4px;
-    color: #ffffff;
+    color: #fff;
     font-size: 11px;
     font-weight: bold;
-    text-shadow: 2px 2px 0 #000000;
+    text-shadow: 2px 2px 0 #000;
     pointer-events: none;
 }
 
@@ -260,16 +249,16 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(198, 198, 198, 0.96);
-    border: 4px solid #000000;
+    transform: translate(-50%,-50%);
+    background: rgba(198,198,198,0.96);
+    border: 4px solid #000;
     padding: 16px;
     display: none;
     pointer-events: all;
     width: 400px;
     max-height: 85vh;
     overflow-y: auto;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 60px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.1);
     z-index: 40;
 }
 
@@ -278,7 +267,7 @@ body {
     font-size: 13px;
     font-weight: bold;
     margin: 8px 0 4px;
-    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
     font-family: 'Courier New', monospace;
 }
 
@@ -293,35 +282,25 @@ body {
     height: 36px;
     background: #8b8b8b;
     border: 2px solid #373737;
-    border-top-color: #ffffff;
-    border-left-color: #ffffff;
-    border-bottom-color: #555555;
-    border-right-color: #555555;
+    border-top-color: #fff;
+    border-left-color: #fff;
+    border-bottom-color: #555;
+    border-right-color: #555;
     cursor: pointer;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 10px;
-    color: #ffffff;
+    color: #fff;
     font-weight: bold;
-    text-shadow: 1px 1px 0 #000000;
+    text-shadow: 1px 1px 0 #000;
     font-family: 'Courier New', monospace;
 }
 
 .inv-slot:hover {
     background: #a0a0a0;
-    border-color: #ffffff;
-}
-
-.inv-slot .slot-count {
-    position: absolute;
-    bottom: 0;
-    right: 3px;
-    color: #ffffff;
-    font-size: 10px;
-    text-shadow: 2px 2px 0 #000000;
-    pointer-events: none;
+    border-color: #fff;
 }
 
 .inv-hotbar {
@@ -350,16 +329,14 @@ body {
     height: 36px;
     background: #8b8b8b;
     border: 2px solid #373737;
-    border-top-color: #ffffff;
-    border-left-color: #ffffff;
-    border-bottom-color: #555555;
-    border-right-color: #555555;
+    border-top-color: #fff;
+    border-left-color: #fff;
+    border-bottom-color: #555;
+    border-right-color: #555;
     cursor: pointer;
 }
 
-.armor-slot:hover {
-    border-color: #ffffff;
-}
+.armor-slot:hover { border-color: #fff; }
 
 /* ============ PLAYER PREVIEW ============ */
 #player-preview {
@@ -368,13 +345,13 @@ body {
     right: 14px;
     width: 60px;
     height: 100px;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0,0,0,0.2);
     border: 2px solid #373737;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 10px;
-    color: #555555;
+    color: #555;
     font-family: 'Courier New', monospace;
 }
 
@@ -392,10 +369,10 @@ body {
     height: 36px;
     background: #8b8b8b;
     border: 2px solid #373737;
-    border-top-color: #ffffff;
-    border-left-color: #ffffff;
-    border-bottom-color: #555555;
-    border-right-color: #555555;
+    border-top-color: #fff;
+    border-left-color: #fff;
+    border-bottom-color: #555;
+    border-right-color: #555;
 }
 
 #crafting-result {
@@ -403,26 +380,18 @@ body {
     height: 52px;
     background: #8b8b8b;
     border: 3px solid #373737;
-    border-top-color: #ffffff;
-    border-left-color: #ffffff;
+    border-top-color: #fff;
+    border-left-color: #fff;
     margin: 8px auto 0;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 24px;
-    color: #555555;
+    color: #555;
 }
 
-#crafting-result:hover {
-    border-color: #ffffff;
-}
-
-/* ============ AVAILABLE RECIPES ============ */
-#available-recipes {
-    margin-top: 8px;
-    font-family: 'Courier New', monospace;
-}
+#crafting-result:hover { border-color: #fff; }
 
 /* ============ PAUSE MENU ============ */
 #pause-menu {
@@ -431,7 +400,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0,0,0,0.7);
     display: none;
     align-items: center;
     justify-content: center;
@@ -441,7 +410,7 @@ body {
 }
 
 .pause-title {
-    color: #ffffff;
+    color: #fff;
     font-size: 40px;
     font-weight: bold;
     text-shadow: 4px 4px 0 #3f3f3f;
@@ -453,9 +422,9 @@ body {
     width: 260px;
     padding: 10px;
     margin: 5px;
-    background: #999999;
-    color: #ffffff;
-    border: 2px solid #000000;
+    background: #999;
+    color: #fff;
+    border: 2px solid #000;
     cursor: pointer;
     font-family: 'Courier New', monospace;
     font-size: 15px;
@@ -464,8 +433,8 @@ body {
 }
 
 .pause-btn:hover {
-    background: #bbbbbb;
-    border-color: #ffffff;
+    background: #bbb;
+    border-color: #fff;
 }
 
 /* ============ COMMAND INPUT ============ */
@@ -475,51 +444,480 @@ body {
     left: 4px;
     width: 400px;
     padding: 4px 8px;
-    background: rgba(0, 0, 0, 0.85);
-    color: #ffffff;
-    border: 1px solid #555555;
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    border: 1px solid #555;
     font-family: 'Courier New', monospace;
     font-size: 13px;
     z-index: 35;
     outline: none;
 }
 
-#command-input::placeholder {
-    color: #888888;
-}
+#command-input::placeholder { color: #888; }
 
 /* ============ SCROLLBAR ============ */
-::-webkit-scrollbar {
-    width: 4px;
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 2px; }
+
+/* ============ LOADING SCREEN ============ */
+#loading-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 100;
+    transition: opacity 0.5s;
 }
 
-::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.3);
+#loading-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
 }
 
-::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 2px;
+#loading-bar-bg {
+    width: 300px;
+    height: 4px;
+    background: #333;
+    border: 1px solid #555;
+    margin-top: 16px;
+}
+
+#loading-bar-fill {
+    height: 100%;
+    background: #5a8a3c;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+#loading-text {
+    color: #aaa;
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 8px;
+}
+
+#loading-percent {
+    color: #888;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    margin-top: 4px;
 }
 
 /* ============ RESPONSIVE ============ */
 @media (max-width: 768px) {
-    #chat {
-        width: 90vw;
-        font-size: 10px;
-    }
-    
-    #inventory-screen {
-        width: 95vw;
-        padding: 8px;
-    }
-    
-    .slot {
-        width: 36px;
-        height: 36px;
-    }
-    
-    #hotbar {
-        padding: 1px;
-    }
+    #chat { width: 90vw; font-size: 10px; bottom: 76px; }
+    #inventory-screen { width: 95vw; padding: 8px; }
+    .slot { width: 36px; height: 36px; }
+    #hotbar { padding: 1px; }
+}
+
+/* ============================================
+   ADD-ONS - Paste at end of styles.css
+   ============================================ */
+
+/* ============ HEALTH & HUNGER BARS (in-world HUD) ============ */
+#health-bar {
+    position: absolute;
+    bottom: 74px; /* Fixed stack layout order (Hotbar -> XP -> Hunger -> Health) */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1px;
+    pointer-events: none;
+    z-index: 15;
+    white-space: nowrap; /* Prevents wrapping layout errors on smaller viewpoints */
+}
+
+.heart {
+    width: 18px;
+    height: 18px;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+}
+
+.heart.full { background: #f00; box-shadow: inset 3px 0 0 #c00, inset 0 3px 0 #f33; }
+.heart.half { background: linear-gradient(90deg, #f00 50%, #333 50%); }
+.heart.empty { background: #333; box-shadow: inset 0 0 2px #555; }
+.heart.absorption { background: #fc0; box-shadow: inset 3px 0 0 #c90; }
+
+#hunger-bar {
+    position: absolute;
+    bottom: 94px; /* Stacked properly relative to health layout grid */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1px;
+    pointer-events: none;
+    z-index: 15;
+    white-space: nowrap;
+}
+
+.hunger-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.hunger-icon.full { background: #8b4513; box-shadow: inset 3px 0 0 #6b3410; }
+.hunger-icon.half { background: linear-gradient(90deg, #8b4513 50%, #333 50%); }
+.hunger-icon.empty { background: #333; }
+
+/* ============ XP BAR ============ */
+#xp-bar-container {
+    position: absolute;
+    bottom: 58px; /* Perfectly structured to sit right atop standard 52px hotbar */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 182px;
+    pointer-events: none;
+    z-index: 15;
+}
+
+#xp-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(0,0,0,0.8);
+}
+
+#xp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0a0, #5f5);
+    transition: width 0.3s;
+}
+
+#xp-level {
+    color: #5f5;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 2px 2px 0 #000;
+    margin-top: 2px;
+}
+
+/* ============ HOTBAR TOOLTIP ============ */
+#hotbar-tooltip {
+    position: absolute;
+    bottom: 66px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(16,0,16,0.94);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-size: 11px;
+    pointer-events: none;
+    display: none;
+    z-index: 35;
+    border: 2px solid #250025;
+    white-space: nowrap;
+    font-family: 'Courier New', monospace;
+}
+
+/* ============ INVENTORY TOOLTIP ============ */
+#inv-tooltip {
+    position: absolute;
+    background: rgba(16,0,16,0.94);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 3px;
+    font-size: 11px;
+    pointer-events: none;
+    display: none;
+    z-index: 45;
+    border: 2px solid #250025;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+    line-height: 1.4;
+    max-width: 200px;
+    font-family: 'Courier New', monospace;
+}
+
+#inv-tooltip .tt-name { color: #fff; font-weight: bold; }
+#inv-tooltip .tt-lore { color: #aaa; font-style: italic; }
+#inv-tooltip .tt-enchant { color: #9b9bff; }
+#inv-tooltip .tt-damage { color: #f55; }
+
+/* ============ DEATH SCREEN ============ */
+#death-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(139,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    pointer-events: all;
+    z-index: 55;
+    animation: deathFade 0.5s ease-in;
+}
+
+@keyframes deathFade {
+    from { background: rgba(0,0,0,0); }
+    to { background: rgba(139,0,0,0.6); }
+}
+
+.death-title {
+    color: #fff;
+    font-size: 36px;
+    font-weight: bold;
+    text-shadow: 3px 3px 0 #3f0000;
+    margin-bottom: 20px;
+    font-family: 'Courier New', monospace;
+}
+
+.death-subtitle {
+    color: #ccc;
+    font-size: 14px;
+    margin-bottom: 30px;
+    font-family: 'Courier New', monospace;
+}
+
+.death-btn {
+    width: 220px;
+    padding: 10px;
+    margin: 5px;
+    background: #999;
+    color: #fff;
+    border: 2px solid #000;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    text-align: center;
+    transition: background 0.2s;
+}
+
+.death-btn:hover { background: #bbb; border-color: #fff; }
+
+/* ============ SETTINGS SCREEN ============ */
+#settings-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background: rgba(50,50,50,0.95);
+    border: 4px solid #000;
+    padding: 20px;
+    display: none;
+    pointer-events: all;
+    width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 60;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+}
+
+.settings-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #555;
+}
+
+.settings-label { font-size: 13px; }
+
+.settings-slider {
+    width: 120px;
+    cursor: pointer;
+}
+
+.settings-btn {
+    padding: 6px 12px;
+    background: #666;
+    color: #fff;
+    border: 1px solid #888;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+.settings-btn:hover { background: #888; }
+
+.settings-close {
+    width: 100%;
+    padding: 10px;
+    margin-top: 16px;
+    background: #c33;
+    color: #fff;
+    border: 2px solid #000;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    text-align: center;
+}
+
+.settings-close:hover { background: #e44; }
+
+/* ============ MINIMAP ============ */
+#minimap {
+    position: absolute;
+    top: 28px; /* Fixed: Shifted downward to cleanly clear the top-right FPS counter */
+    right: 8px;
+    width: 120px;
+    height: 120px;
+    background: rgba(0,0,0,0.6);
+    border: 2px solid #555;
+    pointer-events: none;
+    z-index: 15;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+}
+
+/* ============ COMPASS ============ */
+#compass {
+    position: absolute;
+    top: 156px; /* Offset adjusted to fit seamlessly below shifted minimap */
+    right: 8px;
+    color: #fff;
+    font-size: 10px;
+    text-align: center;
+    width: 120px;
+    pointer-events: none;
+    z-index: 15;
+    font-family: 'Courier New', monospace;
+    text-shadow: 1px 1px 0 #000;
+}
+
+/* ============ ITEM DROP ANIMATION ============ */
+.dropped-item {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+    z-index: 12;
+    animation: itemBounce 0.6s ease-out;
+}
+
+@keyframes itemBounce {
+    0% { transform: scale(0) rotate(0deg); opacity: 0; }
+    50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+    100% { transform: scale(1) rotate(360deg); opacity: 1; }
+}
+
+/* ============ BLOCK BREAKING OVERLAY ============ */
+#breaking-overlay {
+    position: absolute;
+    pointer-events: none;
+    display: none;
+    z-index: 14;
+    border: 2px solid rgba(0,0,0,0.8);
+}
+
+.breaking-stage-0 { background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAFklEQVQ4y2P4z8BQz0BKYBw1YNSAUQMINQOIDMGxSbsAAAAASUVORK5CYII=') repeat; }
+.breaking-stage-1 { background: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 4px); }
+.breaking-stage-2 { background: repeating-linear-gradient(-45deg, transparent, transparent 2px, rgba(0,0,0,0.5) 2px, rgba(0,0,0,0.5) 4px); }
+.breaking-stage-3 { background: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,0,0,0.6) 1px, rgba(0,0,0,0.6) 2px); }
+
+/* ============ CROSSHAIR VARIANTS ============ */
+/* Fixed: Data-URIs properly escaped changing internal '#' characters to '%23' for browser stability */
+.crosshair-default { }
+.crosshair-pickaxe { cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><circle cx="8" cy="8" r="3" fill="none" stroke="white" stroke-width="1"/></svg>') 8 8, crosshair; }
+.crosshair-sword { cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><line x1="4" y1="4" x2="12" y2="12" stroke="white" stroke-width="1"/><line x1="12" y1="4" x2="4" y2="12" stroke="white" stroke-width="1"/></svg>') 8 8, crosshair; }
+
+/* ============ WORLD SELECTION SCREEN ============ */
+#world-select {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 90;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+}
+
+.world-select-title {
+    font-size: 32px;
+    margin-bottom: 30px;
+    text-shadow: 3px 3px 0 #333;
+}
+
+.world-card {
+    width: 400px;
+    padding: 16px;
+    margin: 8px;
+    background: #333;
+    border: 2px solid #555;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.world-card:hover {
+    background: #444;
+    border-color: #fff;
+    transform: translateX(8px);
+}
+
+.world-card-name { font-size: 16px; font-weight: bold; }
+.world-card-info { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+.world-create-btn {
+    width: 400px;
+    padding: 14px;
+    margin-top: 16px;
+    background: #5a8a3c;
+    color: #fff;
+    border: 2px solid #000;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    text-align: center;
+}
+
+.world-create-btn:hover { background: #6a9a4c; }
+
+/* ============ FADE TRANSITIONS ============ */
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.fade-out {
+    animation: fadeOut 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* ============ COLOR CODED RARITY ============ */
+.rarity-common { color: #fff; }
+.rarity-uncommon { color: #ff0; }
+.rarity-rare { color: #0ff; }
+.rarity-epic { color: #f0f; }
+.rarity-legendary { color: #f80; }
+
+/* ============ PRINTF-DEBUG HELPER ============ */
+.debug-highlight {
+    border: 1px solid #f00 !important;
+    background: rgba(255,0,0,0.2) !important;
 }
