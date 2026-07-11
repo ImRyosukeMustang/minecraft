@@ -249,14 +249,12 @@ function enableWebGPU() {
         }
     });
 }
-// Auto-detect (wait for page to fully load)
-window.addEventListener("load", function() {
+// Auto-detect - wait for everything to load
+setTimeout(function() {
     if (typeof navigator !== "undefined" && navigator.gpu) {
         console.log("WebGPU detected - initializing...");
         enableWebGPU();
-    } else {
-        console.log("WebGPU not available - using Canvas 2D");
     }
-});
+}, 1000);
 
 console.log("WebGPU renderer ready");
