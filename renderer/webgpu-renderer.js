@@ -38,6 +38,10 @@ async function initWebGPU() {
         });
 
         gpuContext = canvas.getContext("webgpu");
+        if (!gpuContext) {
+            console.log("Could not get WebGPU context - using Canvas 2D");
+            return false;
+        }
         gpuFormat = navigator.gpu.getPreferredCanvasFormat();
         gpuContext.configure({
             device: gpuDevice,
