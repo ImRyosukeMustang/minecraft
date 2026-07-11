@@ -33,6 +33,10 @@ function initGame() {
     initPlayer();
     initInventory();
     preGenerateSpawn(CONFIG.VIEW_DISTANCE + 1);
+   
+    if (typeof initWebGPU === "function") {
+        initWebGPU();
+    
     addChat("Welcome to Minecraft!");
     addChat("Seed: " + CONFIG.WORLD_SEED);
     addChat("WASD: Move | Mouse: Look | Click: Mine/Place");
@@ -236,15 +240,14 @@ function resumeGame() {
 // ============ GAME LOOP ============
 function loop() {
     update();
-    
-    if (usingWebGPU && gpuDevice) {
+
+    if (usingWebGPU && typeof renderWebGPU === "function") {
         renderWebGPU();
     } else {
-        render();
+        render();  // Canvas 2D fallback
     }
-    
+
     requestAnimationFrame(loop);
 }
-
 // ============ START ============
 loop();
