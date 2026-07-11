@@ -87,15 +87,17 @@ function getTerrainHeight(x, z, dim) {
 var BIOMES = {
     OCEAN:           { id: 0,  name: "Ocean",           temp: 0.5,  rain: 0.5,  surfaceBlock: BLOCKS.GRASS_BLOCK, subSurfaceBlock: BLOCKS.DIRT },
     PLAINS:          { id: 1,  name: "Plains",          temp: 0.8,  rain: 0.4,  surfaceBlock: BLOCKS.GRASS_BLOCK, subSurfaceBlock: BLOCKS.DIRT, treeChance: 0.01 },
-    DESERT:          { id: 2,  name: "Desert",          temp: 2.0,  rain: 0.0,  surfaceBlock: BLOCKS.SAND,        subSurfaceBlock: BLOCKS.SAND },
+    DESERT:          { id: 2,  name: "Desert",          temp: 2.0,  rain: 0.0,  surfaceBlock: BLOCKS.SAND,        subSurfaceBlock: BLOCKS.SAND, cactusChance: 0.05 },
     FOREST:          { id: 3,  name: "Forest",          temp: 0.7,  rain: 0.8,  surfaceBlock: BLOCKS.GRASS_BLOCK, subSurfaceBlock: BLOCKS.DIRT, treeChance: 0.12 },
     TAIGA:           { id: 4,  name: "Taiga",           temp: 0.25, rain: 0.8,  surfaceBlock: BLOCKS.GRASS_BLOCK, subSurfaceBlock: BLOCKS.DIRT, treeChance: 0.10, treeType: "spruce" },
-    SWAMP:           { id: 5,  name: "Swamp",           temp: 0.8,  rain: 0.9,  surfaceBlock: BLOCKS.GRASS_BLOCK, subSurfaceBlock: BLOCKS.DIRT },
+    SWAMP:           { id: 5,  name: "Swamp",           temp: 0.8,  rain: 0.9,  surfaceBlock: BLOCKS.GRASS_BLOCK, subSurfaceBlock: BLOCKS.DIRT, treeChance: 0.05, treeType: "swamp_oak" },
     SAVANNA:         { id: 6,  name: "Savanna",         temp: 1.2,  rain: 0.0,  surfaceBlock: BLOCKS.GRASS_BLOCK, subSurfaceBlock: BLOCKS.DIRT, treeChance: 0.02, treeType: "acacia" },
     BEACH:           { id: 7,  name: "Beach",           temp: 0.8,  rain: 0.4,  surfaceBlock: BLOCKS.SAND,        subSurfaceBlock: BLOCKS.SAND },
     MOUNTAINS:       { id: 8,  name: "Mountains",       temp: 0.2,  rain: 0.3,  surfaceBlock: BLOCKS.GRASS_BLOCK, subSurfaceBlock: BLOCKS.DIRT },
     MUSHROOM_ISLAND: { id: 9,  name: "Mushroom Island", temp: 0.9,  rain: 1.0,  surfaceBlock: BLOCKS.MYCELIUM,    subSurfaceBlock: BLOCKS.DIRT },
-    HELL:            { id: 10, name: "Nether",           temp: 2.0,  rain: 0.0,  surfaceBlock: BLOCKS.NETHERRACK,  subSurfaceBlock: BLOCKS.NETHERRACK, nether: true },
+    JUNGLE:          { id: 12, name: "Jungle",          temp: 0.95, rain: 0.9,  surfaceBlock: BLOCKS.GRASS_BLOCK, subSurfaceBlock: BLOCKS.DIRT, treeChance: 0.35, treeType: "jungle" },
+    DARK_FOREST:     { id: 13, name: "Dark Forest",     temp: 0.6,  rain: 0.8,  surfaceBlock: BLOCKS.GRASS_BLOCK, subSurfaceBlock: BLOCKS.DIRT, treeChance: 0.25, treeType: "dark_oak" },
+    HELL:            { id: 10, name: "Nether",          temp: 2.0,  rain: 0.0,  surfaceBlock: BLOCKS.NETHERRACK,  subSurfaceBlock: BLOCKS.NETHERRACK, nether: true },
     END_VOID:        { id: 11, name: "End",              temp: 0.5,  rain: 0.0,  surfaceBlock: BLOCKS.END_STONE,   subSurfaceBlock: BLOCKS.END_STONE, end: true }
 };
 
@@ -112,9 +114,11 @@ function getBiome(x, z, dim) {
     if (h <= CONFIG.SEA_LEVEL + 3) return BIOMES.BEACH;
     if (temp > 0.7 && rain < 0.2) return BIOMES.DESERT;
     if (temp > 0.6 && rain < 0.3) return BIOMES.SAVANNA;
+    if (temp > 0.8 && rain > 0.8) return BIOMES.JUNGLE;
     if (rain > 0.7 && temp < 0.3) return BIOMES.TAIGA;
     if (rain > 0.8 && temp > 0.4 && h < CONFIG.SEA_LEVEL + 15) return BIOMES.SWAMP;
     if (h > 80) return BIOMES.MOUNTAINS;
+    if (rain > 0.7 && temp > 0.5) return BIOMES.DARK_FOREST;
     if (rain > 0.6) return BIOMES.FOREST;
     if (temp > 0.9 && rain > 0.9 && Math.abs(x) < 200 && Math.abs(z) < 200) return BIOMES.MUSHROOM_ISLAND;
     return BIOMES.PLAINS;
@@ -128,41 +132,106 @@ function isCave(wx, wy, wz) {
     return ((n1 + n2 + n3) / 3) > 0.55 && wy < 50 && wy > 5;
 }
 
-// ============ TREES ============
+// ============ TREES (WITH VARIETY) ============
 function generateTree(chunk, lx, y, lz, type) {
     var data = chunk.data;
     if (!type) type = "oak";
     
     var height, logBlock, leafBlock;
+    var rand = seededRandom(lx, y, lz);
+    
     switch(type) {
-        case "oak":     height = 4 + Math.floor(seededRandom(lx, y, lz) * 3); logBlock = BLOCKS.OAK_LOG; leafBlock = BLOCKS.OAK_LEAVES; break;
-        case "spruce":  height = 6 + Math.floor(seededRandom(lx, y, lz) * 5); logBlock = BLOCKS.SPRUCE_LOG; leafBlock = BLOCKS.SPRUCE_LEAVES; break;
-        case "birch":   height = 5 + Math.floor(seededRandom(lx, y, lz) * 2); logBlock = BLOCKS.BIRCH_LOG; leafBlock = BLOCKS.BIRCH_LEAVES; break;
-        case "acacia":  height = 4 + Math.floor(seededRandom(lx, y, lz) * 3); logBlock = BLOCKS.ACACIA_LOG; leafBlock = BLOCKS.ACACIA_LEAVES; break;
-        default:        height = 4 + Math.floor(seededRandom(lx, y, lz) * 3); logBlock = BLOCKS.OAK_LOG; leafBlock = BLOCKS.OAK_LEAVES;
+        case "oak":
+            height = 4 + Math.floor(rand * 3); 
+            logBlock = BLOCKS.OAK_LOG; 
+            leafBlock = BLOCKS.OAK_LEAVES; 
+            break;
+        case "spruce":
+            height = 6 + Math.floor(rand * 5); 
+            logBlock = BLOCKS.SPRUCE_LOG; 
+            leafBlock = BLOCKS.SPRUCE_LEAVES; 
+            break;
+        case "birch":
+            height = 5 + Math.floor(rand * 2); 
+            logBlock = BLOCKS.BIRCH_LOG; 
+            leafBlock = BLOCKS.BIRCH_LEAVES; 
+            break;
+        case "acacia":
+            height = 5 + Math.floor(rand * 3); 
+            logBlock = BLOCKS.ACACIA_LOG; 
+            leafBlock = BLOCKS.ACACIA_LEAVES; 
+            break;
+        case "jungle":
+            height = 8 + Math.floor(rand * 10); // Much taller
+            logBlock = BLOCKS.JUNGLE_LOG; 
+            leafBlock = BLOCKS.JUNGLE_LEAVES; 
+            break;
+        case "dark_oak":
+            height = 6 + Math.floor(rand * 2); 
+            logBlock = BLOCKS.DARK_OAK_LOG; 
+            leafBlock = BLOCKS.DARK_OAK_LEAVES; 
+            break;
+        case "swamp_oak":
+            height = 4 + Math.floor(rand * 3); 
+            logBlock = BLOCKS.OAK_LOG; 
+            leafBlock = BLOCKS.OAK_LEAVES; // Could append vines dynamically
+            break;
+        default:
+            height = 4 + Math.floor(rand * 3); 
+            logBlock = BLOCKS.OAK_LOG; 
+            leafBlock = BLOCKS.OAK_LEAVES;
     }
     
-    // Trunk
+    // Trunk Generation
+    var isLargeTree = (type === "jungle" && rand > 0.5) || type === "dark_oak";
+    var thickness = isLargeTree ? 2 : 1;
+    
     for (var i = 0; i < height; i++) {
-        var idx = lx + (y + i) * CONFIG.CHUNK_SIZE + lz * CONFIG.CHUNK_SIZE * CONFIG.WORLD_HEIGHT;
-        if (y + i < CONFIG.WORLD_HEIGHT && lx >= 0 && lx < CONFIG.CHUNK_SIZE && lz >= 0 && lz < CONFIG.CHUNK_SIZE) {
-            data[idx] = logBlock;
+        for (var txOffset = 0; txOffset < thickness; txOffset++) {
+            for (var tzOffset = 0; tzOffset < thickness; tzOffset++) {
+                var clx = lx + txOffset, clz = lz + tzOffset;
+                if (y + i < CONFIG.WORLD_HEIGHT && clx >= 0 && clx < CONFIG.CHUNK_SIZE && clz >= 0 && clz < CONFIG.CHUNK_SIZE) {
+                    var idx = clx + (y + i) * CONFIG.CHUNK_SIZE + clz * CONFIG.CHUNK_SIZE * CONFIG.WORLD_HEIGHT;
+                    data[idx] = logBlock;
+                }
+            }
         }
     }
     
-    // Leaves
+    // Canopy Generation
     var leafStart = y + height - 3;
-    for (var ly = leafStart; ly <= y + height; ly++) {
-        var radius = (ly >= y + height - 1) ? 1 : 2;
-        for (var dx = -radius; dx <= radius; dx++) {
-            for (var dz = -radius; dz <= radius; dz++) {
-                if (dx === 0 && dz === 0 && ly < y + height - 1) continue;
+    for (var ly = leafStart; ly <= y + height + 1; ly++) {
+        var baseRadius = (ly >= y + height) ? 1 : 2;
+        var radius = isLargeTree ? baseRadius + 1 : baseRadius;
+        
+        for (var dx = -radius; dx <= radius + (thickness - 1); dx++) {
+            for (var dz = -radius; dz <= radius + (thickness - 1); dz++) {
+                // Avoid replacing trunks or making perfect square leaf blocks
+                if (dx >= 0 && dx < thickness && dz >= 0 && dz < thickness && ly < y + height) continue;
                 if (Math.abs(dx) === radius && Math.abs(dz) === radius && seededRandom(lx + dx, ly, lz + dz) < 0.4) continue;
+                
                 var tx = lx + dx, tz = lz + dz;
                 if (tx >= 0 && tx < CONFIG.CHUNK_SIZE && tz >= 0 && tz < CONFIG.CHUNK_SIZE && ly < CONFIG.WORLD_HEIGHT) {
                     var leafIdx = tx + ly * CONFIG.CHUNK_SIZE + tz * CONFIG.CHUNK_SIZE * CONFIG.WORLD_HEIGHT;
                     if (data[leafIdx] === BLOCKS.AIR) data[leafIdx] = leafBlock;
                 }
+            }
+        }
+    }
+}
+
+// ============ CACTUS FIELD GENERATION ============
+function generateCactusField(chunk, lx, y, lz) {
+    var data = chunk.data;
+    var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
+    var height = 2 + Math.floor(seededRandom(lx, y, lz, WORLD_SEED + 123) * 2); // 2 to 3 blocks high
+    
+    for (var i = 0; i < height; i++) {
+        var ty = y + i;
+        if (lx >= 0 && lx < CS && lz >= 0 && lz < CS && ty < WH) {
+            var idx = lx + ty * CS + lz * CS * WH;
+            if (data[idx] === BLOCKS.AIR) {
+                data[idx] = BLOCKS.CACTUS;
             }
         }
     }
@@ -191,6 +260,8 @@ function generateChunk(cx, cz, dim) {
                     } else if (y <= 4) {
                         block = BLOCKS.STONE;
                     } else if (isCave(wx, y, wz) && y < h - 4) {
+                        block = BLOCKS.AIR;
+                    } else if (isRavine(wx, y, wz) && y < h - 2) {
                         block = BLOCKS.AIR;
                     } else if (y < h - 4) {
                         block = BLOCKS.STONE;
@@ -221,25 +292,71 @@ function generateChunk(cx, cz, dim) {
                 data[lx + y * CS + lz * CS * WH] = block;
             }
             
-            // Surface features
-            if (dim === CONFIG.DIMENSION_OVERWORLD && h > CONFIG.SEA_LEVEL) {
+            // Surface features & structural anchors
+            if (dim === CONFIG.DIMENSION_OVERWORLD) {
                 var surfaceIdx = lx + h * CS + lz * CS * WH;
-                var treeChance = biome.treeChance || 0;
+                var structRoll = seededRandom(wx, 777, wz);
                 
-                if (data[surfaceIdx] === BLOCKS.GRASS_BLOCK && treeChance > 0 && seededRandom(wx, 0, wz) > (1 - treeChance)) {
-                    generateTree(chunk, lx, h + 1, lz, biome.treeType || "oak");
+                if (h > CONFIG.SEA_LEVEL) {
+                    // Tree distribution
+                    var treeChance = biome.treeChance || 0;
+                    if (data[surfaceIdx] === BLOCKS.GRASS_BLOCK && treeChance > 0 && seededRandom(wx, 0, wz) > (1 - treeChance)) {
+                        generateTree(chunk, lx, h + 1, lz, biome.treeType || "oak");
+                    }
+                    
+                    // Cacti Fields
+                    var cactusChance = biome.cactusChance || 0;
+                    if (data[surfaceIdx] === BLOCKS.SAND && cactusChance > 0 && seededRandom(wx, 12, wz) > (1 - cactusChance)) {
+                        generateCactusField(chunk, lx, h + 1, lz);
+                    }
+                    
+                    // Flowers / Ground Coverage
+                    if (data[surfaceIdx] === BLOCKS.GRASS_BLOCK && h + 1 < WH && seededRandom(wx, 1, wz) > 0.85) {
+                        var flowerRoll = seededRandom(wx, 2, wz);
+                        var flowerIdx = lx + (h + 1) * CS + lz * CS * WH;
+                        if (flowerRoll > 0.95) data[flowerIdx] = BLOCKS.POPPY;
+                        else if (flowerRoll > 0.90) data[flowerIdx] = BLOCKS.DANDELION;
+                        else data[flowerIdx] = BLOCKS.TALL_GRASS;
+                    }
+                    
+                    // Structures (Rare triggers evaluated on chunk local spaces)
+                    if (lx === 8 && lz === 8) {
+                        if (biome === BIOMES.DESERT && structRoll > 0.98) generateDesertPyramid(chunk, lx, h, lz);
+                        else if (biome === BIOMES.TAIGA && structRoll > 0.98 && h > 70) generateIgloo(chunk, lx, h + 1, lz);
+                        else if (biome === BIOMES.SWAMP && structRoll > 0.97) generateWitchHut(chunk, lx, h, lz);
+                        else if (biome === BIOMES.JUNGLE && structRoll > 0.98) generateJungleTemple(chunk, lx, h, lz);
+                    }
+                } else {
+                    // Underwater structure check
+                    if (lx === 8 && lz === 8 && biome === BIOMES.OCEAN) {
+                        if (structRoll > 0.98) generateShipwreck(chunk, lx, h, lz);
+                        else if (structRoll > 0.995) generateOceanMonument(chunk, lx, h, lz);
+                    }
+                    
+                    // Underwater vegetation
+                    if (y === h && data[surfaceIdx] === BLOCKS.DIRT || data[surfaceIdx] === BLOCKS.SAND) {
+                        var waterVeg = seededRandom(wx, 45, wz);
+                        if (waterVeg > 0.95) generateKelp(chunk, lx, h + 1, lz);
+                        else if (waterVeg > 0.88) generateSeagrass(chunk, lx, h + 1, lz);
+                    }
                 }
                 
-                // Flowers
-                if (data[surfaceIdx] === BLOCKS.GRASS_BLOCK && h + 1 < WH && seededRandom(wx, 1, wz) > 0.85) {
-                    var flowerRoll = seededRandom(wx, 2, wz);
-                    var flowerIdx = lx + (h + 1) * CS + lz * CS * WH;
-                    if (flowerRoll > 0.95) data[flowerIdx] = BLOCKS.POPPY;
-                    else if (flowerRoll > 0.90) data[flowerIdx] = BLOCKS.DANDELION;
-                    else data[flowerIdx] = BLOCKS.TALL_GRASS;
+                // Underground Structures
+                if (lx === 8 && lz === 8 && h > 40) {
+                    var undergroundRoll = seededRandom(wx, 999, wz);
+                    if (undergroundRoll > 0.98) generateSmallDungeon(chunk, lx, 20, lz);
+                    else if (undergroundRoll > 0.96) generateMineshaft(chunk, lx, 30, lz, 12, "x");
+                    else if (undergroundRoll > 0.995) generateStrongholdRoom(chunk, lx, 15, lz, 9, 9, 5);
+                    else if (undergroundRoll < 0.01) generateFossil(chunk, lx, 12, lz);
                 }
             }
         }
+    }
+    
+    // Dynamic generation injection for custom ore frequency passes
+    if (dim === CONFIG.DIMENSION_OVERWORLD) {
+        generateOreVein(chunk, BLOCKS.IRON_ORE, 16, 64, 2, 8);
+        generateOreVein(chunk, BLOCKS.COAL_ORE, 0, 128, 3, 15);
     }
     
     return chunk;
@@ -283,7 +400,12 @@ function preGenerateSpawn(radius) {
     if (typeof radius === "undefined") radius = CONFIG.VIEW_DISTANCE + 1;
     var cx = -radius, cz = -radius;
     function genNext() {
-        if (cx <= radius) { getChunk(cx, cz); cz++; if (cz > radius) { cz = -radius; cx++; } setTimeout(genNext, 0); }
+        if (cx <= radius) { 
+            getChunk(cx, cz); 
+            cz++; 
+            if (cz > radius) { cz = -radius; cx++; } 
+            setTimeout(genNext, 0); 
+        }
     }
     setTimeout(genNext, 10);
 }
@@ -301,12 +423,147 @@ function unloadDistantChunks() {
         }
     }
 }
-// ============ STRUCTURE GENERATION ============
+
+// ============ NEW STRUCTURES GENERATION ============
+
+// 1. IGLOO GENERATION
+function generateIgloo(chunk, lx, y, lz) {
+    var data = chunk.data;
+    var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
+    
+    // Simple dome calculation radius = 3
+    for (var dx = -3; dx <= 3; dx++) {
+        for (var dz = -3; dz <= 3; dz++) {
+            for (var dy = 0; dy <= 3; dy++) {
+                var dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                var tx = lx + dx, ty = y + dy, tz = lz + dz;
+                
+                if (tx >= 0 && tx < CS && tz >= 0 && tz < CS && ty < WH) {
+                    if (dist <= 3.2 && dist >= 2.0) {
+                        data[tx + ty * CS + tz * CS * WH] = BLOCKS.SNOW_BLOCK;
+                    } else if (dist < 2.0) {
+                        data[tx + ty * CS + tz * CS * WH] = BLOCKS.AIR;
+                    }
+                }
+            }
+        }
+    }
+    // Cut open a door entryway facing North (negative z)
+    for (var dy = 0; dy < 2; dy++) {
+        if (lx >= 0 && lx < CS && lz - 3 >= 0 && lz - 3 < CS) {
+            data[lx + (y + dy) * CS + (lz - 3) * CS * WH] = BLOCKS.AIR;
+            data[lx + (y + dy) * CS + (lz - 2) * CS * WH] = BLOCKS.AIR;
+        }
+    }
+}
+
+// 2. WITCH HUT GENERATION
+function generateWitchHut(chunk, lx, y, lz) {
+    var data = chunk.data;
+    var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
+    
+    // 4 Stilts made out of oak logs down into the dirt/swamp floor
+    var stiltOffsets = [[-2, -2], [2, -2], [-2, 2], [2, 2]];
+    stiltOffsets.forEach(function(offset) {
+        var sx = lx + offset[0], sz = lz + offset[1];
+        for (var sy = y - 3; sy <= y; sy++) {
+            if (sx >= 0 && sx < CS && sz >= 0 && sz < CS && sy < WH && sy >= 0) {
+                data[sx + sy * CS + sz * CS * WH] = BLOCKS.OAK_LOG;
+            }
+        }
+    });
+
+    // Hut walls 7x7 base platform, 4 height rooms
+    for (var bx = -3; bx <= 3; bx++) {
+        for (var bz = -3; bz <= 3; bz++) {
+            for (var by = 1; by <= 4; by++) {
+                var tx = lx + bx, ty = y + by, tz = lz + bz;
+                if (tx < 0 || tx >= CS || tz < 0 || tz >= CS || ty >= WH) continue;
+                
+                var isWall = (Math.abs(bx) === 3 || Math.abs(bz) === 3);
+                var isFloor = (by === 1);
+                var isRoof = (by === 4);
+                
+                if (isFloor || isRoof) {
+                    data[tx + ty * CS + tz * CS * WH] = BLOCKS.OAK_PLANKS;
+                } else if (isWall) {
+                    data[tx + ty * CS + tz * CS * WH] = BLOCKS.DARK_OAK_PLANKS;
+                } else {
+                    data[tx + ty * CS + tz * CS * WH] = BLOCKS.AIR;
+                }
+            }
+        }
+    }
+    // Decorative Cauldron Placeholder inside center
+    if (lx >= 0 && lx < CS && lz >= 0 && lz < CS) {
+        data[lx + (y + 2) * CS + lz * CS * WH] = BLOCKS.CAULDRON || BLOCKS.ANVIL;
+    }
+}
+
+// 3. JUNGLE TEMPLE GENERATION
+function generateJungleTemple(chunk, lx, y, lz) {
+    var data = chunk.data;
+    var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
+    var w = 10, d = 12, h = 6;
+    
+    for (var by = 0; by < h; by++) {
+        var inset = Math.floor(by / 2); // Tiered step pattern
+        for (var bx = inset; bx < w - inset; bx++) {
+            for (var bz = inset; bz < d - inset; bz++) {
+                var tx = lx + bx, tz = lz + bz, ty = y + by;
+                if (tx < 0 || tx >= CS || tz < 0 || tz >= CS || ty >= WH) continue;
+                
+                var isWall = (bx === inset || bx === w - inset - 1 || bz === inset || bz === d - inset - 1);
+                var isFloor = (by === 0);
+                
+                if (isWall || isFloor) {
+                    var randBlock = seededRandom(tx, ty, tz);
+                    data[tx + ty * CS + tz * CS * WH] = (randBlock > 0.4) ? BLOCKS.MOSSY_COBBLESTONE : BLOCKS.COBBLESTONE;
+                } else {
+                    data[tx + ty * CS + tz * CS * WH] = BLOCKS.AIR;
+                }
+            }
+        }
+    }
+}
+
+// 4. SHIPWRECK GENERATION
+function generateShipwreck(chunk, lx, y, lz) {
+    var data = chunk.data;
+    var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
+    var length = 12;
+    
+    // Generate a simple horizontal capsule on the ocean bed floor using wood hulls
+    for (var bz = 0; bz < length; bz++) {
+        var radius = (bz === 0 || bz === length - 1) ? 1 : 2;
+        for (var dx = -radius; dx <= radius; dx++) {
+            for (var dy = -radius; dy <= radius; dy++) {
+                var tx = lx + dx, ty = y + dy, tz = lz + bz;
+                if (tx >= 0 && tx < CS && tz >= 0 && tz < CS && ty < WH && ty >= 0) {
+                    var dist = Math.sqrt(dx*dx + dy*dy);
+                    var isHull = (dist <= radius && dist >= radius - 0.8);
+                    
+                    if (isHull) {
+                        data[tx + ty * CS + tz * CS * WH] = BLOCKS.OAK_PLANKS;
+                    } else if (dist < radius) {
+                        // Interior cabin cargo loot box placeholder mapping
+                        if (bz === Math.floor(length / 2) && dx === 0 && dy === 0) {
+                            data[tx + ty * CS + tz * CS * WH] = BLOCKS.CHEST || BLOCKS.OAK_PLANKS;
+                        } else {
+                            data[tx + ty * CS + tz * CS * WH] = BLOCKS.WATER;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ============ LEGACY STRUCTURE ALGORITHMS ============
 function generateDesertPyramid(chunk, lx, y, lz) {
     var data = chunk.data;
     var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
     
-    // Base
     for (var bx = -10; bx <= 10; bx++) {
         for (var bz = -10; bz <= 10; bz++) {
             var tx = lx + bx, tz = lz + bz;
@@ -315,8 +572,6 @@ function generateDesertPyramid(chunk, lx, y, lz) {
             }
         }
     }
-    
-    // Walls (pyramid shape)
     for (var level = 0; level < 10; level++) {
         var size = 10 - level;
         for (var bx = -size; bx <= size; bx++) {
@@ -351,8 +606,6 @@ function generateSmallDungeon(chunk, lx, y, lz) {
             }
         }
     }
-    
-    // Spawner in center
     if (lx >= 0 && lx < CS && lz >= 0 && lz < CS && y + 1 < WH) {
         data[lx + (y + 1) * CS + lz * CS * WH] = BLOCKS.MOB_SPAWNER;
     }
@@ -387,32 +640,6 @@ function generateOreVein(chunk, blockId, minY, maxY, veinSize, frequency) {
     }
 }
 
-// ============ VILLAGE GENERATOR ============
-function generateVillageHouse(chunk, lx, y, lz) {
-    var data = chunk.data;
-    var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
-    var w = 5, d = 5, h = 4;
-    
-    for (var bx = 0; bx < w; bx++) {
-        for (var bz = 0; bz < d; bz++) {
-            for (var by = 0; by < h; by++) {
-                var tx = lx + bx, tz = lz + bz, ty = y + by;
-                if (tx >= 0 && tx < CS && tz >= 0 && tz < CS && ty < WH) {
-                    var isWall = (bx === 0 || bx === w-1 || bz === 0 || bz === d-1);
-                    var isRoof = (by === h-1);
-                    var isFloor = (by === 0);
-                    var isDoor = (bx === Math.floor(w/2) && bz === 0 && by < 2);
-                    
-                    if (isDoor) data[tx + ty * CS + tz * CS * WH] = BLOCKS.AIR;
-                    else if (isRoof) data[tx + ty * CS + tz * CS * WH] = BLOCKS.OAK_PLANKS;
-                    else if (isWall) data[tx + ty * CS + tz * CS * WH] = BLOCKS.OAK_LOG;
-                    else if (isFloor) data[tx + ty * CS + tz * CS * WH] = BLOCKS.OAK_PLANKS;
-                }
-            }
-        }
-    }
-}
-
 // ============ RAVINE GENERATION ============
 function isRavine(wx, wy, wz) {
     var ravineNoise = octaveNoise(wx * 0.02, wz * 0.02, 3, WORLD_SEED + 900);
@@ -436,7 +663,7 @@ function generateKelp(chunk, lx, y, lz) {
     for (var i = 0; i < height && y + i < WH; i++) {
         if (lx >= 0 && lx < CS && lz >= 0 && lz < CS) {
             var idx = lx + (y + i) * CS + lz * CS * WH;
-            if (data[idx] === BLOCKS.WATER) data[idx] = BLOCKS.SUGAR_CANE; // Using sugar cane as kelp placeholder
+            if (data[idx] === BLOCKS.WATER) data[idx] = BLOCKS.SUGAR_CANE; 
         }
     }
 }
@@ -461,11 +688,9 @@ function shouldSnowAt(wx, wy, wz) {
 function tickBlock(x, y, z) {
     var blockId = getBlock(x, y, z);
     
-    // Grass spreading
     if (blockId === BLOCKS.GRASS_BLOCK) {
         var above = getBlock(x, y + 1, z);
         if (isSolid(above)) setBlock(x, y, z, BLOCKS.DIRT);
-        // Spread to nearby dirt
         for (var dx = -1; dx <= 1; dx++) {
             for (var dz = -1; dz <= 1; dz++) {
                 if (dx === 0 && dz === 0) continue;
@@ -478,12 +703,9 @@ function tickBlock(x, y, z) {
         }
     }
     
-    // Ice melting
     if (blockId === BLOCKS.ICE && getLightLevel(x, y, z) >= 12) {
         setBlock(x, y, z, BLOCKS.WATER);
     }
-    
-    // Water freezing
     if (blockId === BLOCKS.WATER && shouldSnowAt(x, y, z) && getLightLevel(x, y, z) < 8) {
         setBlock(x, y, z, BLOCKS.ICE);
     }
@@ -493,7 +715,6 @@ function tickBlock(x, y, z) {
 function applyWeatherToWorld() {
     if (typeof weather === "undefined" || weather.type === "clear") return;
     
-    // Snow accumulation during snow weather
     if (weather.type === "snow") {
         var px = Math.floor(player.x), pz = Math.floor(player.z);
         for (var dx = -10; dx <= 10; dx++) {
@@ -550,14 +771,6 @@ function isInsideWorldBorder(x, z) {
            Math.abs(z - worldBorderCenter.z) <= worldBorderSize;
 }
 
-function getWorldBorderDamage(x, z) {
-    var distX = Math.abs(x - worldBorderCenter.x) - worldBorderSize;
-    var distZ = Math.abs(z - worldBorderCenter.z) - worldBorderSize;
-    var dist = Math.max(distX, distZ);
-    if (dist <= 0) return 0;
-    return Math.ceil(dist / 2);
-}
-
 // ============ DIMENSION TRAVEL ============
 function switchDimension(dim) {
     currentDimension = dim;
@@ -571,12 +784,12 @@ function switchDimension(dim) {
 function setWorldSeed(newSeed) {
     WORLD_SEED = newSeed;
     CONFIG.WORLD_SEED = newSeed;
-    // Clear all chunks
     dimensionChunks[CONFIG.DIMENSION_OVERWORLD] = {};
     dimensionChunks[CONFIG.DIMENSION_NETHER] = {};
     dimensionChunks[CONFIG.DIMENSION_END] = {};
     preGenerateSpawn(CONFIG.VIEW_DISTANCE + 1);
 }
+
 // ============ ABANDONED MINESHAFT GENERATOR ============
 function generateMineshaft(chunk, lx, y, lz, length, direction) {
     var data = chunk.data;
@@ -591,7 +804,6 @@ function generateMineshaft(chunk, lx, y, lz, length, direction) {
         
         if (tx < 0 || tx >= CS || tz < 0 || tz >= CS || ty < 0 || ty >= WH) continue;
         
-        // Main tunnel (3x3)
         for (var bx = -1; bx <= 1; bx++) {
             for (var bz = -1; bz <= 1; bz++) {
                 for (var by = 0; by < 3; by++) {
@@ -611,13 +823,11 @@ function generateMineshaft(chunk, lx, y, lz, length, direction) {
             }
         }
         
-        // Rails on floor
         var railIdx = tx + ty * CS + tz * CS * WH;
         if (i % 3 === 0 && tx >= 0 && tx < CS && tz >= 0 && tz < CS && ty < WH) {
             data[railIdx] = BLOCKS.RAIL;
         }
         
-        // Random side tunnels
         if (i > 3 && Math.random() < 0.08) {
             var sideDir = direction === "x" ? "z" : "x";
             generateMineshaft(chunk, tx, ty, tz, 3 + Math.floor(Math.random() * 5), sideDir);
@@ -640,9 +850,7 @@ function generateStrongholdRoom(chunk, lx, y, lz, width, depth, height) {
                 var isPillar = (bx === Math.floor(width/3) || bx === Math.floor(2*width/3)) && 
                               (bz === Math.floor(depth/3) || bz === Math.floor(2*depth/3)) && by < height-1;
                 
-                if (isWall) {
-                    data[tx + ty * CS + tz * CS * WH] = BLOCKS.STONE_BRICKS;
-                } else if (isPillar) {
+                if (isWall || isPillar) {
                     data[tx + ty * CS + tz * CS * WH] = BLOCKS.STONE_BRICKS;
                 } else {
                     data[tx + ty * CS + tz * CS * WH] = BLOCKS.AIR;
@@ -650,44 +858,10 @@ function generateStrongholdRoom(chunk, lx, y, lz, width, depth, height) {
             }
         }
     }
-    
-    // End portal frame in center
     var cx2 = lx + Math.floor(width/2);
     var cz2 = lz + Math.floor(depth/2);
     if (cx2 >= 0 && cx2 < CS && cz2 >= 0 && cz2 < CS && y + 1 < WH) {
         data[cx2 + (y+1) * CS + cz2 * CS * WH] = BLOCKS.END_PORTAL_FRAME;
-    }
-}
-
-// ============ NETHER FORTRESS GENERATOR ============
-function generateNetherFortress(chunk, lx, y, lz) {
-    var data = chunk.data;
-    var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
-    
-    // Bridge
-    for (var bx = -2; bx <= 2; bx++) {
-        for (var length = 0; length < 20; length++) {
-            var tx = lx + bx, tz = lz + length;
-            if (tx >= 0 && tx < CS && tz >= 0 && tz < CS && y < WH) {
-                data[tx + y * CS + tz * CS * WH] = BLOCKS.NETHER_BRICKS;
-            }
-        }
-    }
-    
-    // Pillars
-    for (var i = 0; i < 20; i += 4) {
-        var px = lx, pz = lz + i;
-        for (var py = 0; py < 8; py++) {
-            var ty = y + py;
-            if (px >= 0 && px < CS && pz >= 0 && pz < CS && ty < WH) {
-                data[px + ty * CS + pz * CS * WH] = BLOCKS.NETHER_BRICKS;
-            }
-        }
-    }
-    
-    // Blaze spawner
-    if (lx >= 0 && lx < CS && lz + 10 >= 0 && lz + 10 < CS && y + 1 < WH) {
-        data[lx + (y+1) * CS + (lz+10) * CS * WH] = BLOCKS.MOB_SPAWNER;
     }
 }
 
@@ -725,17 +899,14 @@ function generateOceanMonument(chunk, lx, y, lz) {
 function generateFossil(chunk, lx, y, lz) {
     var data = chunk.data;
     var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
-    
-    // Spine
     var spineLength = 6 + Math.floor(Math.random() * 8);
+    
     for (var i = 0; i < spineLength; i++) {
         var tx = lx + i, ty = y + Math.floor(Math.sin(i * 0.8) * 2);
         if (tx >= 0 && tx < CS && ty >= 0 && ty < WH) {
             data[tx + ty * CS + lz * CS * WH] = BLOCKS.BONE_BLOCK;
         }
     }
-    
-    // Ribs
     for (var i = 2; i < spineLength - 2; i += 2) {
         for (var rib = -2; rib <= 2; rib++) {
             if (rib === 0) continue;
@@ -747,189 +918,3 @@ function generateFossil(chunk, lx, y, lz) {
         }
     }
 }
-
-// ============ IGLOO GENERATOR ============
-function generateIgloo(chunk, lx, y, lz) {
-    var data = chunk.data;
-    var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
-    
-    for (var bx = -3; bx <= 3; bx++) {
-        for (var bz = -3; bz <= 3; bz++) {
-            for (var by = 0; by < 5; by++) {
-                var tx = lx + bx, tz = lz + bz, ty = y + by;
-                if (tx < 0 || tx >= CS || tz < 0 || tz >= CS || ty >= WH) continue;
-                
-                var dist = Math.sqrt(bx*bx + bz*bz);
-                var isDome = (dist <= 3 - by * 0.5 && by > 0);
-                var isFloor = (by === 0 && dist <= 3);
-                var isDoor = (bx === 0 && bz === 3 && by < 2);
-                
-                if (isDoor) {
-                    data[tx + ty * CS + tz * CS * WH] = BLOCKS.AIR;
-                } else if (isDome || isFloor) {
-                    data[tx + ty * CS + tz * CS * WH] = BLOCKS.SNOW_BLOCK;
-                }
-            }
-        }
-    }
-}
-
-// ============ WITCH HUT GENERATOR ============
-function generateWitchHut(chunk, lx, y, lz) {
-    var data = chunk.data;
-    var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
-    
-    // Platform on stilts
-    for (var bx = -3; bx <= 3; bx++) {
-        for (var bz = -3; bz <= 3; bz++) {
-            var tx = lx + bx, tz = lz + bz;
-            if (tx >= 0 && tx < CS && tz >= 0 && tz < CS && y < WH) {
-                data[tx + y * CS + tz * CS * WH] = BLOCKS.OAK_PLANKS;
-            }
-        }
-    }
-    
-    // Stilts
-    for (var px = -2; px <= 2; px += 4) {
-        for (var pz = -2; pz <= 2; pz += 4) {
-            for (var sy = 1; sy <= 3; sy++) {
-                var tx = lx + px, tz = lz + pz, ty = y - sy;
-                if (tx >= 0 && tx < CS && tz >= 0 && tz < CS && ty >= 0 && ty < WH) {
-                    data[tx + ty * CS + tz * CS * WH] = BLOCKS.OAK_LOG;
-                }
-            }
-        }
-    }
-    
-    // Walls
-    for (var bx = -2; bx <= 2; bx++) {
-        for (var bz = -2; bz <= 2; bz++) {
-            for (var by = 1; by < 4; by++) {
-                var tx = lx + bx, tz = lz + bz, ty = y + by;
-                if (tx < 0 || tx >= CS || tz < 0 || tz >= CS || ty >= WH) continue;
-                var isWall = (Math.abs(bx) === 2 || Math.abs(bz) === 2);
-                var isRoof = (by === 3);
-                if (isWall || isRoof) {
-                    data[tx + ty * CS + tz * CS * WH] = BLOCKS.OAK_PLANKS;
-                }
-            }
-        }
-    }
-}
-
-// ============ SHIPWRECK GENERATOR ============
-function generateShipwreck(chunk, lx, y, lz, rotation) {
-    var data = chunk.data;
-    var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
-    
-    // Hull
-    for (var bx = -2; bx <= 2; bx++) {
-        for (var length = 0; length < 12; length++) {
-            for (var by = 0; by < 4; by++) {
-                var tx = lx + bx, tz = lz + length, ty = y - by;
-                if (tx < 0 || tx >= CS || tz < 0 || tz >= CS || ty < 0 || ty >= WH) continue;
-                
-                var isHull = (by < 3 && Math.abs(bx) === 2) || (by === 0 && Math.abs(bx) <= 2);
-                var isDeck = (by === 3 && Math.abs(bx) <= 2);
-                
-                if (isHull) data[tx + ty * CS + tz * CS * WH] = BLOCKS.OAK_PLANKS;
-                else if (isDeck) data[tx + ty * CS + tz * CS * WH] = BLOCKS.OAK_PLANKS;
-                
-                // Random holes for "wrecked" look
-                if (Math.random() < 0.05) data[tx + ty * CS + tz * CS * WH] = BLOCKS.AIR;
-            }
-        }
-    }
-    
-    // Mast
-    for (var my = 0; my < 8; my++) {
-        var mx = lx, mz = lz + 5, mty = y + my;
-        if (mx >= 0 && mx < CS && mz >= 0 && mz < CS && mty < WH) {
-            data[mx + mty * CS + mz * CS * WH] = BLOCKS.OAK_LOG;
-        }
-    }
-    
-    // Treasure chest
-    var cx2 = lx, cz2 = lz + 8;
-    if (cx2 >= 0 && cx2 < CS && cz2 >= 0 && cz2 < CS && y < WH) {
-        data[cx2 + y * CS + cz2 * CS * WH] = BLOCKS.CHEST;
-    }
-}
-
-// ============ JUNGLE TEMPLE GENERATOR ============
-function generateJungleTemple(chunk, lx, y, lz) {
-    var data = chunk.data;
-    var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
-    
-    // Base
-    for (var bx = -5; bx <= 5; bx++) {
-        for (var bz = -5; bz <= 5; bz++) {
-            for (var by = 0; by < 8; by++) {
-                var tx = lx + bx, tz = lz + bz, ty = y + by;
-                if (tx < 0 || tx >= CS || tz < 0 || tz >= CS || ty >= WH) continue;
-                
-                var isWall = (Math.abs(bx) === 5 || Math.abs(bz) === 5);
-                var isFloor = (by === 0);
-                var isStair = (Math.abs(bx) === 5 - by && by < 5 && Math.abs(bz) <= 5 - by);
-                
-                if (isWall) data[tx + ty * CS + tz * CS * WH] = BLOCKS.COBBLESTONE;
-                else if (isFloor) data[tx + ty * CS + tz * CS * WH] = BLOCKS.MOSSY_COBBLESTONE;
-                else if (isStair) data[tx + ty * CS + tz * CS * WH] = BLOCKS.COBBLESTONE_STAIRS;
-            }
-        }
-    }
-}
-
-// ============ TREE VARIETY GENERATOR ============
-function generateFancyTree(chunk, lx, y, lz) {
-    var data = chunk.data;
-    var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
-    
-    // Extra thick trunk (2x2)
-    var height = 6 + Math.floor(seededRandom(lx, y, lz, WORLD_SEED + 1200) * 4);
-    for (var i = 0; i < height; i++) {
-        for (var tx = 0; tx < 2; tx++) {
-            for (var tz = 0; tz < 2; tz++) {
-                var wx = lx + tx, wz = lz + tz, wy = y + i;
-                if (wx >= 0 && wx < CS && wz >= 0 && wz < CS && wy < WH) {
-                    data[wx + wy * CS + wz * CS * WH] = BLOCKS.OAK_LOG;
-                }
-            }
-        }
-    }
-    
-    // Large canopy
-    for (var ly = y + height - 4; ly <= y + height + 2; ly++) {
-        var radius = (ly >= y + height) ? 2 : 3;
-        for (var dx = -radius; dx <= radius; dx++) {
-            for (var dz = -radius; dz <= radius; dz++) {
-                if (Math.abs(dx) === radius && Math.abs(dz) === radius && Math.random() < 0.5) continue;
-                var wx = lx + dx, wz = lz + dz;
-                if (wx >= 0 && wx < CS && wz >= 0 && wz < CS && ly < WH) {
-                    if (data[wx + ly * CS + wz * CS * WH] === BLOCKS.AIR) {
-                        data[wx + ly * CS + wz * CS * WH] = BLOCKS.OAK_LEAVES;
-                    }
-                }
-            }
-        }
-    }
-}
-
-// ============ CACTUS FIELD GENERATOR ============
-function generateCactusField(chunk, lx, y, lz, count) {
-    var data = chunk.data;
-    var CS = CONFIG.CHUNK_SIZE, WH = CONFIG.WORLD_HEIGHT;
-    
-    for (var i = 0; i < count; i++) {
-        var cx2 = lx + Math.floor(seededRandom(lx + i, y, lz + i, WORLD_SEED + 1300) * 8) - 4;
-        var cz2 = lz + Math.floor(seededRandom(lx + i + 1, y, lz + i + 1, WORLD_SEED + 1301) * 8) - 4;
-        var ch = 2 + Math.floor(seededRandom(cx2, y, cz2, WORLD_SEED + 1302) * 3);
-        
-        for (var j = 0; j < ch; j++) {
-            if (cx2 >= 0 && cx2 < CS && cz2 >= 0 && cz2 < CS && y + j < WH) {
-                data[cx2 + (y + j) * CS + cz2 * CS * WH] = BLOCKS.CACTUS;
-            }
-        }
-    }
-}
-console.log("World engine loaded - Seed: " + WORLD_SEED);
