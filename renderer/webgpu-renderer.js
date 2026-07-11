@@ -19,36 +19,41 @@ var vertexBuffer = null;
 // ============ INIT WebGPU ============
 async function initWebGPU() {
     if (!navigator.gpu) {
-        console.error("❌ WebGPU not supported by browser - using Canvas 2D");
+        console.log("WebGPU not supported - using Canvas 2D");
         return false;
     }
 
     try {
-        gpuAdapter = await navigator.gpu.requestAdapter({
-            powerPreference: "high-performance"
-        });
-
-        if (!gpuAdapter) {
-            console.error("❌ No WebGPU adapter - using Canvas 2D");
+        var adapter = await navigator.gpu.requestAdapter();
+        if (!adapter) {
+            console.log("No WebGPU adapter - using Canvas 2D");
             return false;
         }
 
-        gpuDevice = await gpuAdapter.requestDevice({
+        gpuDevice = await adapter.requestDevice({
             requiredLimits: {
                 maxTextureDimension2D: 4096,
                 maxBufferSize: 268435456
             }
         });
 
-        // Create context
-        gpuContext = canvas.getContext("webgpu");
+        // Create a SEPARATE canvas for WebGPU (fixes the 2D conflict)
+        webgpuCanvas = document.createElement("canvas");
+        webgpuCanvas.width = canvas.width;
+        webgpuCanvas.height = canvas.height;
+        webgpuCanvas.style.cssText = "display:block;position:absolute;top:0;left:0;";
+        canvas.parentNode.insertBefore(webgpuCanvas, canvas);
+        canvas.style.display = "none";
+
+        gpuContext = webgpuCanvas.getContext("webgpu");
         if (!gpuContext) {
-            console.error("❌ Could not get WebGPU context - using Canvas 2D");
+            console.log("Could not get WebGPU context - using Canvas 2D");
+            webgpuCanvas.remove();
+            canvas.style.display = "block";
             return false;
         }
 
         gpuFormat = navigator.gpu.getPreferredCanvasFormat();
-
         gpuContext.configure({
             device: gpuDevice,
             format: gpuFormat,
@@ -56,14 +61,13 @@ async function initWebGPU() {
         });
 
         await createPipeline();
-
-        console.log("✅ WebGPU initialized successfully!");
+        console.log("WebGPU initialized!");
         usingWebGPU = true;
         return true;
 
     } catch (e) {
-        console.error("❌ WebGPU init failed:", e.message || e);
-        console.log("Falling back to Canvas 2D");
+        console.log("WebGPU init failed - using Canvas 2D:", e.message);
+        if (webgpuCanvas) { webgpuCanvas.remove(); canvas.style.display = "block"; }
         return false;
     }
 }
