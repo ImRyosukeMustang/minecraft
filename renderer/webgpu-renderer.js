@@ -2,6 +2,8 @@
 // MINECRAFT - WebGPU RENDERER (Full Updated)
 // GPU-accelerated replacement for Canvas 2D
 // ============================================
+var canvas = document.getElementById("gameCanvas");
+
 var gpuDevice = null;
 var gpuAdapter = null;
 var gpuContext = null;
