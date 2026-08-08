@@ -3,7 +3,8 @@
 // ============================================
 console.log("WebGPU script loaded - canvas ID check:", document.getElementById("gameCanvas") ? "found" : "MISSING");
 var canvas = document.getElementById("gameCanvas");
-
+function worldToChunk(v) { return Math.floor(v / (typeof CONFIG !== "undefined" ? CONFIG.CHUNK_SIZE : 16)); }
+function getVisibleChunks() { return []; }
 var gpuDevice = null;
 var gpuAdapter = null;
 var gpuContext = null;
