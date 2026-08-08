@@ -2,7 +2,21 @@
 // MINECRAFT - MAIN GAME LOOP
 // Connects all systems, runs the game
 // ============================================
+var usingWebGPU = false;
 
+var gameState = {
+    started: false,
+    locked: false,
+    paused: false,
+    gameTime: 0,
+    tickCount: 0,
+    fps: 0,
+    fpsFrames: 0,
+    fpsLastTime: Date.now(),
+    timeOfDay: 6000,
+    showInventory: false,
+    showDebug: false
+};
 // ============ CANVAS SETUP ============
 var canvas = document.getElementById("gameCanvas");
 var ctx = canvas.getContext("2d");
@@ -33,6 +47,10 @@ function initGame() {
     initPlayer();
     initInventory();
     preGenerateSpawn(CONFIG.VIEW_DISTANCE + 1);
+   
+    if (typeof initWebGPU === "function") {
+        initWebGPU();
+    }
     addChat("Welcome to Minecraft!");
     addChat("Seed: " + CONFIG.WORLD_SEED);
     addChat("WASD: Move | Mouse: Look | Click: Mine/Place");
@@ -202,9 +220,14 @@ document.addEventListener("mousedown", function (e) {
         setBlock(px, py, pz, blockToPlace);
         player.blocksPlaced++;
         spawnParticles(px + 0.5, py + 0.5, pz + 0.5, getBlockColor(blockToPlace), CONFIG.PARTICLE_PLACE_COUNT);
-        playSound(CONFIG.BLOCK_PLACE_SOUND_FREQ, CONFIG.BLOCK_PLACE_SOUND_DUR, "square");
+               playSound(CONFIG.BLOCK_PLACE_SOUND_FREQ, CONFIG.BLOCK_PLACE_SOUND_DUR, "square");
     }
-document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+}
+});
+
+document.addEventListener("contextmenu", function (e) { 
+    e.preventDefault(); 
+});
 
 canvas.addEventListener("click", function () {
     if (!gameState.started) {
@@ -228,5 +251,17 @@ function resumeGame() {
     canvas.requestPointerLock();
 }
 
+// ============ GAME LOOP ============
+function loop() {
+    update();
+
+    if (usingWebGPU && typeof renderWebGPU === "function") {
+        renderWebGPU();
+    } else {
+        render();  // Canvas 2D fallback
+    }
+
+    requestAnimationFrame(loop);
+}
 // ============ START ============
 loop();

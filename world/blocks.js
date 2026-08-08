@@ -455,3 +455,187 @@ function getBlockDef(id) {
 initBlockDefs();
 
 console.log("Blocks: " + Object.keys(BLOCKS).length + " IDs, " + Object.keys(blockDefs).length + " definitions, 0 gaps");
+// ============================================
+// TEXTURE ATLAS COORDINATES
+// Each texture is 16×16 in a 256×256 atlas (16 columns × 16 rows)
+// Format: [column, row] → pixel position = col*16, row*16
+// ============================================
+
+var TEX = {
+    // Natural
+    STONE:       { top: [0,0], side: [0,0], bottom: [0,0] },
+    GRANITE:     { top: [1,0], side: [1,0], bottom: [1,0] },
+    DIORITE:     { top: [2,0], side: [2,0], bottom: [2,0] },
+    ANDESITE:    { top: [3,0], side: [3,0], bottom: [3,0] },
+    BEDROCK:     { top: [4,0], side: [4,0], bottom: [4,0] },
+    
+    // Ground
+    GRASS_TOP:   { top: [0,1], side: [0,1], bottom: [0,1] },
+    GRASS_SIDE:  { top: [1,1], side: [1,1], bottom: [1,1] },
+    DIRT:        { top: [2,1], side: [2,1], bottom: [2,1] },
+    PODZOL_TOP:  { top: [3,1], side: [3,1], bottom: [3,1] },
+    PODZOL_SIDE: { top: [4,1], side: [4,1], bottom: [4,1] },
+    
+    // Stone Variants
+    COBBLESTONE:        { top: [0,2], side: [0,2], bottom: [0,2] },
+    MOSSY_COBBLESTONE:  { top: [1,2], side: [1,2], bottom: [1,2] },
+    OBSIDIAN:           { top: [2,2], side: [2,2], bottom: [2,2] },
+    STONE_BRICKS:       { top: [3,2], side: [3,2], bottom: [3,2] },
+    MOSSY_STONE_BRICKS: { top: [4,2], side: [4,2], bottom: [4,2] },
+    CRACKED_STONE_BRICKS:{ top: [5,2], side: [5,2], bottom: [5,2] },
+    CHISELED_STONE_BRICKS:{ top: [6,2], side: [6,2], bottom: [6,2] },
+    
+    // Ores
+    COAL_ORE:    { top: [0,3], side: [0,3], bottom: [0,3] },
+    IRON_ORE:    { top: [1,3], side: [1,3], bottom: [1,3] },
+    GOLD_ORE:    { top: [2,3], side: [2,3], bottom: [2,3] },
+    DIAMOND_ORE: { top: [3,3], side: [3,3], bottom: [3,3] },
+    EMERALD_ORE: { top: [4,3], side: [4,3], bottom: [4,3] },
+    REDSTONE_ORE:{ top: [5,3], side: [5,3], bottom: [5,3] },
+    LAPIS_ORE:   { top: [6,3], side: [6,3], bottom: [6,3] },
+    
+    // Logs
+    OAK_LOG_TOP:    { top: [0,4], side: [0,4], bottom: [0,4] },
+    OAK_LOG_SIDE:   { top: [1,4], side: [1,4], bottom: [1,4] },
+    SPRUCE_LOG_TOP: { top: [2,4], side: [2,4], bottom: [2,4] },
+    SPRUCE_LOG_SIDE:{ top: [3,4], side: [3,4], bottom: [3,4] },
+    BIRCH_LOG_TOP:  { top: [4,4], side: [4,4], bottom: [4,4] },
+    BIRCH_LOG_SIDE: { top: [5,4], side: [5,4], bottom: [5,4] },
+    
+    // Planks
+    OAK_PLANKS:      { top: [0,5], side: [0,5], bottom: [0,5] },
+    SPRUCE_PLANKS:   { top: [1,5], side: [1,5], bottom: [1,5] },
+    BIRCH_PLANKS:    { top: [2,5], side: [2,5], bottom: [2,5] },
+    JUNGLE_PLANKS:   { top: [3,5], side: [3,5], bottom: [3,5] },
+    ACACIA_PLANKS:   { top: [4,5], side: [4,5], bottom: [4,5] },
+    DARK_OAK_PLANKS: { top: [5,5], side: [5,5], bottom: [5,5] },
+    
+    // Leaves
+    OAK_LEAVES:      { top: [0,6], side: [0,6], bottom: [0,6] },
+    SPRUCE_LEAVES:   { top: [1,6], side: [1,6], bottom: [1,6] },
+    BIRCH_LEAVES:    { top: [2,6], side: [2,6], bottom: [2,6] },
+    
+    // Sand
+    SAND:        { top: [0,7], side: [0,7], bottom: [0,7] },
+    RED_SAND:    { top: [1,7], side: [1,7], bottom: [1,7] },
+    SANDSTONE:   { top: [2,7], side: [2,7], bottom: [2,7] },
+    RED_SANDSTONE:{ top: [3,7], side: [3,7], bottom: [3,7] },
+    GRAVEL:      { top: [4,7], side: [4,7], bottom: [4,7] },
+    CLAY:        { top: [5,7], side: [5,7], bottom: [5,7] },
+    
+    // Water/Lava
+    WATER:       { top: [0,8], side: [0,8], bottom: [0,8] },
+    LAVA:        { top: [1,8], side: [1,8], bottom: [1,8] },
+    
+    // Ice/Snow
+    ICE:         { top: [0,9], side: [0,9], bottom: [0,9] },
+    SNOW:        { top: [1,9], side: [1,9], bottom: [1,9] },
+    
+    // Wool
+    WOOL_WHITE:  { top: [0,10], side: [0,10], bottom: [0,10] },
+    WOOL_RED:    { top: [1,10], side: [1,10], bottom: [1,10] },
+    WOOL_BLUE:   { top: [2,10], side: [2,10], bottom: [2,10] },
+    WOOL_BLACK:  { top: [3,10], side: [3,10], bottom: [3,10] },
+    
+    // Glass
+    GLASS:       { top: [0,11], side: [0,11], bottom: [0,11] },
+    
+    // Bricks
+    BRICKS:      { top: [0,12], side: [0,12], bottom: [0,12] },
+    NETHER_BRICKS:{ top: [1,12], side: [1,12], bottom: [1,12] },
+    
+    // Nether
+    NETHERRACK:  { top: [0,13], side: [0,13], bottom: [0,13] },
+    SOUL_SAND:   { top: [1,13], side: [1,13], bottom: [1,13] },
+    GLOWSTONE:   { top: [2,13], side: [2,13], bottom: [2,13] },
+    
+    // End
+    END_STONE:   { top: [0,14], side: [0,14], bottom: [0,14] },
+    
+    // Functional
+    CRAFTING_TABLE_TOP:  { top: [0,15], side: [0,15], bottom: [0,15] },
+    CRAFTING_TABLE_SIDE: { top: [1,15], side: [1,15], bottom: [1,15] },
+    FURNACE_FRONT:       { top: [2,15], side: [2,15], bottom: [2,15] },
+    FURNACE_SIDE:        { top: [3,15], side: [3,15], bottom: [3,15] },
+    TNT_TOP:    { top: [4,15], side: [4,15], bottom: [4,15] },
+    TNT_SIDE:   { top: [5,15], side: [5,15], bottom: [5,15] },
+    CHEST:      { top: [6,15], side: [6,15], bottom: [6,15] },
+    BOOKSHELF:  { top: [7,15], side: [7,15], bottom: [7,15] }
+};
+
+// ============ UPDATE BLOCK DEFINITIONS WITH TEXTURES ============
+function updateBlockTextures() {
+    var D = blockDefs;
+    var B = BLOCKS;
+    var T = TEX;
+    
+    // Map textures to blocks
+    var textureMap = {};
+    textureMap[B.STONE] = T.STONE;
+    textureMap[B.GRANITE] = T.GRANITE;
+    textureMap[B.DIORITE] = T.DIORITE;
+    textureMap[B.ANDESITE] = T.ANDESITE;
+    textureMap[B.BEDROCK] = T.BEDROCK;
+    textureMap[B.GRASS_BLOCK] = { top: T.GRASS_TOP, side: T.GRASS_SIDE, bottom: T.DIRT };
+    textureMap[B.DIRT] = T.DIRT;
+    textureMap[B.PODZOL] = { top: T.PODZOL_TOP, side: T.PODZOL_SIDE, bottom: T.DIRT };
+    textureMap[B.COBBLESTONE] = T.COBBLESTONE;
+    textureMap[B.MOSSY_COBBLESTONE] = T.MOSSY_COBBLESTONE;
+    textureMap[B.OBSIDIAN] = T.OBSIDIAN;
+    textureMap[B.STONE_BRICKS] = T.STONE_BRICKS;
+    textureMap[B.COAL_ORE] = T.COAL_ORE;
+    textureMap[B.IRON_ORE] = T.IRON_ORE;
+    textureMap[B.GOLD_ORE] = T.GOLD_ORE;
+    textureMap[B.DIAMOND_ORE] = T.DIAMOND_ORE;
+    textureMap[B.EMERALD_ORE] = T.EMERALD_ORE;
+    textureMap[B.REDSTONE_ORE] = T.REDSTONE_ORE;
+    textureMap[B.LAPIS_ORE] = T.LAPIS_ORE;
+    textureMap[B.OAK_LOG] = { top: T.OAK_LOG_TOP, side: T.OAK_LOG_SIDE, bottom: T.OAK_LOG_TOP };
+    textureMap[B.SPRUCE_LOG] = { top: T.SPRUCE_LOG_TOP, side: T.SPRUCE_LOG_SIDE, bottom: T.SPRUCE_LOG_TOP };
+    textureMap[B.BIRCH_LOG] = { top: T.BIRCH_LOG_TOP, side: T.BIRCH_LOG_SIDE, bottom: T.BIRCH_LOG_TOP };
+    textureMap[B.OAK_PLANKS] = T.OAK_PLANKS;
+    textureMap[B.SPRUCE_PLANKS] = T.SPRUCE_PLANKS;
+    textureMap[B.BIRCH_PLANKS] = T.BIRCH_PLANKS;
+    textureMap[B.JUNGLE_PLANKS] = T.JUNGLE_PLANKS;
+    textureMap[B.ACACIA_PLANKS] = T.ACACIA_PLANKS;
+    textureMap[B.DARK_OAK_PLANKS] = T.DARK_OAK_PLANKS;
+    textureMap[B.OAK_LEAVES] = T.OAK_LEAVES;
+    textureMap[B.SPRUCE_LEAVES] = T.SPRUCE_LEAVES;
+    textureMap[B.BIRCH_LEAVES] = T.BIRCH_LEAVES;
+    textureMap[B.SAND] = T.SAND;
+    textureMap[B.SANDSTONE] = T.SANDSTONE;
+    textureMap[B.GRAVEL] = T.GRAVEL;
+    textureMap[B.CLAY] = T.CLAY;
+    textureMap[B.WATER] = T.WATER;
+    textureMap[B.LAVA] = T.LAVA;
+    textureMap[B.ICE] = T.ICE;
+    textureMap[B.SNOW_BLOCK] = T.SNOW;
+    textureMap[B.WHITE_WOOL] = T.WOOL_WHITE;
+    textureMap[B.RED_WOOL] = T.WOOL_RED;
+    textureMap[B.BLUE_WOOL] = T.WOOL_BLUE;
+    textureMap[B.BLACK_WOOL] = T.WOOL_BLACK;
+    textureMap[B.GLASS] = T.GLASS;
+    textureMap[B.BRICKS] = T.BRICKS;
+    textureMap[B.NETHER_BRICKS] = T.NETHER_BRICKS;
+    textureMap[B.NETHERRACK] = T.NETHERRACK;
+    textureMap[B.SOUL_SAND] = T.SOUL_SAND;
+    textureMap[B.GLOWSTONE] = T.GLOWSTONE;
+    textureMap[B.END_STONE] = T.END_STONE;
+    textureMap[B.CRAFTING_TABLE] = { top: T.CRAFTING_TABLE_TOP, side: T.CRAFTING_TABLE_SIDE, bottom: T.OAK_PLANKS };
+    textureMap[B.FURNACE] = { top: T.FURNACE_SIDE, side: T.FURNACE_SIDE, bottom: T.FURNACE_SIDE, front: T.FURNACE_FRONT };
+    textureMap[B.TNT] = { top: T.TNT_TOP, side: T.TNT_SIDE, bottom: T.TNT_TOP };
+    textureMap[B.CHEST] = T.CHEST;
+    textureMap[B.BOOKSHELF] = T.BOOKSHELF;
+    
+    // Apply textures to blockDefs
+    for (var id in textureMap) {
+        if (blockDefs[id]) {
+            blockDefs[id].textures = textureMap[id];
+        }
+    }
+    
+    console.log("Block textures updated");
+}
+
+// Call after block definitions are initialized
+updateBlockTextures();

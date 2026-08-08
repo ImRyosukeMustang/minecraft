@@ -3,8 +3,9 @@
 // All settings, constants, and keybinds
 // ============================================
 
-var CONFIG = {
+
     // ============ WORLD ============
+var CONFIG = {
     WORLD_SEED: Math.floor(Math.random() * 2147483647),
     CHUNK_SIZE: 16,
     WORLD_HEIGHT: 128,
@@ -13,6 +14,10 @@ var CONFIG = {
     MAX_LOADED_CHUNKS: 200,
     CHUNK_UNLOAD_INTERVAL: 80,
 
+    // Chunk meshing
+    USE_CHUNK_MESH: true,
+    USE_WEBGPU: true,
+    
     // ============ DIMENSIONS ============
     DIMENSION_OVERWORLD: 0,
     DIMENSION_NETHER: -1,

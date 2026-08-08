@@ -3,13 +3,14 @@
 // World, entities, particles, weather, lighting
 // ============================================
 
+
+
 // ============ MAIN RENDER FUNCTION ============
 function render() {
     ctx.clearRect(0, 0, W, H);
 
     // Sky
     renderSky();
-
     // Title screen
     if (!gameState.started) {
         renderTitleScreen();
@@ -131,8 +132,7 @@ function renderTitleScreen() {
 
     ctx.textAlign = "start";
 }
-
-// ============ WORLD RENDERING ============
+// ============ WORLD RENDERING (with mesh caching) ============
 function renderWorld() {
     var cosY = Math.cos(player.yaw), sinY = Math.sin(player.yaw);
     var fov = CONFIG.FOV;
@@ -140,83 +140,47 @@ function renderWorld() {
 
     for (var ci = 0; ci < visibleChunks.length; ci++) {
         var ch = visibleChunks[ci];
-        var data = ch.chunk.data;
-        var wx = ch.cx * CHUNK_SIZE;
-        var wz = ch.cz * CHUNK_SIZE;
-
-        for (var x = 0; x < CHUNK_SIZE; x++) {
-            for (var z = 0; z < CHUNK_SIZE; z++) {
-                var worldX = wx + x;
-                var worldZ = wz + z;
-                var colDX = worldX + 0.5 - player.x;
-                var colDZ = worldZ + 0.5 - player.z;
-                var colRZ = colDX * sinY + colDZ * cosY;
-                if (colRZ <= 0.1) continue;
-
-                for (var y = 0; y < WORLD_HEIGHT; y++) {
-                    var blockId = data[x + y * CHUNK_SIZE + z * CHUNK_SIZE * WORLD_HEIGHT];
-                    if (blockId === BLOCKS.AIR) continue;
-
-                    var def = getBlockDef(blockId);
-                    if (!def || (def.transparent && blockId !== BLOCKS.GLASS && blockId !== BLOCKS.ICE && blockId !== BLOCKS.OAK_LEAVES)) continue;
-
-                    // Face culling
-                    if (def.solid && !isExposed(worldX, y, worldZ)) continue;
-
-                    var wY = y + 0.5;
-                    var pdx = worldX + 0.5 - player.x;
-                    var pdy = wY - (player.y + player.eyeHeight);
-                    var pdz = worldZ + 0.5 - player.z;
-
-                    var prx = pdx * cosY - pdz * sinY;
-                    var prz = pdx * sinY + pdz * cosY;
-                    if (prz <= 0.1) continue;
-
-                    var scale = H / (prz * Math.tan(fov / 2));
-                    var screenX = W / 2 + prx * scale;
-                    var screenY = H / 2 - pdy * scale;
-                    var size = scale;
-
-                    if (screenX + size < -50 || screenX - size > W + 50 || screenY + size < -50 || screenY - size > H + 50) continue;
-
-                    // Get color
-                    var col = def.color || "#888888";
-
-                    // Top color (grass, logs, etc.)
-                    if (def.topColor && y + 1 < WORLD_HEIGHT) {
-                        var aboveId = data[x + (y + 1) * CHUNK_SIZE + z * CHUNK_SIZE * WORLD_HEIGHT];
-                        if (isTransparent(aboveId)) col = def.topColor;
-                    }
-
-                    // Night darkness
-                    if (currentDimension === CONFIG.DIMENSION_OVERWORLD && gameState.timeOfDay > CONFIG.NIGHT_START && gameState.timeOfDay < CONFIG.NIGHT_END) {
-                        var nightFactor = gameState.timeOfDay < 18000 ? (gameState.timeOfDay - CONFIG.NIGHT_START) / 5000 : 1 - (gameState.timeOfDay - 18000) / 5000;
-                        col = darkenColor(col, 1 - nightFactor * CONFIG.NIGHT_DARKNESS_FACTOR);
-                    }
-
-                    // Nether dim light
-                    if (currentDimension === CONFIG.DIMENSION_NETHER) {
-                        col = darkenColor(col, 0.8);
-                    }
-
-                    // Render block
-                    if (def.transparent && def.opacity) {
-                        ctx.globalAlpha = def.opacity;
-                    }
-
-                    ctx.fillStyle = col;
-                    ctx.fillRect(screenX - size / 2, screenY - size / 2, size, size);
-
-                    // Block outline
-                    if (CONFIG.SHOW_BLOCK_OUTLINES && size > 6 && !def.transparent) {
-                        ctx.strokeStyle = CONFIG.BLOCK_OUTLINE_COLOR;
-                        ctx.lineWidth = CONFIG.BLOCK_OUTLINE_WIDTH;
-                        ctx.strokeRect(screenX - size / 2, screenY - size / 2, size, size);
-                    }
-
-                    ctx.globalAlpha = 1;
-                }
-            }
+        var chunk = ch.chunk;
+        
+        // Build mesh if needed
+        if (chunk.meshDirty || !chunk.mesh) {
+            buildChunkMesh(chunk);
+        }
+        
+        // Skip if no mesh
+        if (!chunk.mesh) continue;
+        
+        var mesh = chunk.mesh;
+        
+        for (var mi = 0; mi < mesh.length; mi++) {
+            var block = mesh[mi];
+            var worldX = block.x;
+            var worldZ = block.z;
+            var blockId = block.id;
+            var def = getBlockDef(blockId);
+            
+            var colDX = worldX - player.x;
+            var colDZ = worldZ - player.z;
+            var colRZ = colDX * sinY + colDZ * cosY;
+            if (colRZ <= 0.1) continue;
+            
+            var wY = block.y;
+            var pdx = worldX - player.x;
+            var pdy = wY - (player.y + player.eyeHeight);
+            var pdz = worldZ - player.z;
+            
+            var prx = pdx * cosY - pdz * sinY;
+            var prz = pdx * sinY + pdz * cosY;
+            if (prz <= 0.1) continue;
+            
+            var scale = H / (prz * Math.tan(fov / 2));
+            var screenX = W / 2 + prx * scale;
+            var screenY = H / 2 - pdy * scale;
+            var size = scale;
+            
+            if (screenX + size < -50 || screenX - size > W + 50 || screenY + size < -50 || screenY - size > H + 50) continue;
+            
+            renderBlockFace(screenX, screenY, size, blockId, def);
         }
     }
 }
@@ -251,5 +215,72 @@ function getVisibleChunks() {
     list.sort(function (a, b) { return b.dist - a.dist; });
     return list;
 }
+// ============ RENDER BLOCK FACE WITH TEXTURE ============
+function renderBlockFace(screenX, screenY, size, blockId, def) {
+    // Try texture atlas first
+    if (textureAtlas && textureAtlas.complete && textureAtlas.naturalWidth > 0 && def && def.textures) {
+        var tex = def.textures.side || def.textures.top || [0, 0];
+        var texX = tex[0] * 16;
+        var texY = tex[1] * 16;
 
+        // Apply night darkness via globalAlpha
+        var alpha = 1.0;
+        if (def.transparent && def.opacity) {
+            alpha = def.opacity;
+        }
+
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(
+            textureAtlas,
+            texX, texY, 16, 16,
+            screenX - size / 2, screenY - size / 2, size, size
+        );
+
+        // Block outline
+        if (CONFIG.SHOW_BLOCK_OUTLINES && size > 6 && !def.transparent) {
+            ctx.strokeStyle = CONFIG.BLOCK_OUTLINE_COLOR;
+            ctx.lineWidth = CONFIG.BLOCK_OUTLINE_WIDTH;
+            ctx.strokeRect(screenX - size / 2, screenY - size / 2, size, size);
+        }
+
+        ctx.globalAlpha = 1;
+        return;
+    }
+
+    // Fallback to flat color
+    var col = def.color || "#888888";
+
+    // Top color (grass, logs)
+    if (def.topColor) {
+        col = def.topColor;
+    }
+
+    // Night darkness
+    if (currentDimension === CONFIG.DIMENSION_OVERWORLD && gameState.timeOfDay > CONFIG.NIGHT_START && gameState.timeOfDay < CONFIG.NIGHT_END) {
+        var nightFactor = gameState.timeOfDay < 18000 ? (gameState.timeOfDay - CONFIG.NIGHT_START) / 5000 : 1 - (gameState.timeOfDay - 18000) / 5000;
+        col = darkenColor(col, 1 - nightFactor * CONFIG.NIGHT_DARKNESS_FACTOR);
+    }
+
+    // Nether dim
+    if (currentDimension === CONFIG.DIMENSION_NETHER) {
+        col = darkenColor(col, 0.8);
+    }
+
+    // Render
+    if (def.transparent && def.opacity) {
+        ctx.globalAlpha = def.opacity;
+    }
+
+    ctx.fillStyle = col;
+    ctx.fillRect(screenX - size / 2, screenY - size / 2, size, size);
+
+    // Block outline
+    if (CONFIG.SHOW_BLOCK_OUTLINES && size > 6 && !def.transparent) {
+        ctx.strokeStyle = CONFIG.BLOCK_OUTLINE_COLOR;
+        ctx.lineWidth = CONFIG.BLOCK_OUTLINE_WIDTH;
+        ctx.strokeRect(screenX - size / 2, screenY - size / 2, size, size);
+    }
+
+    ctx.globalAlpha = 1;
+}
 console.log("Renderer loaded - Canvas 2D pipeline ready");
