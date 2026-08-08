@@ -5,7 +5,7 @@
 
 // ============ SEEDED RANDOM (32-bit safe, deterministic) ============
  function seededRandom(x, y, z = 0, seed = null) {
-    const worldSeed = seed !== null ? seed : (typeof CONFIG !== "undefined" ? CONFIG.WORLD_SEED : 1337);
+    varworldSeed = seed !== null ? seed : (typeof CONFIG !== "undefined" ? CONFIG.WORLD_SEED : 1337);
     let n = (((x * 374761393) | 0) + ((y * 668265263) | 0) + ((z * 1274126177) | 0) + ((worldSeed * 1013904223) | 0)) | 0;
     n = ((n ^ (n >>> 13)) * 1274126177) | 0;
     return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
@@ -30,22 +30,22 @@
 
 // ============ PERLIN / SMOOTH NOISE ============
  function smoothNoise(x, z, seed = null) {
-    const worldSeed = seed !== null ? seed : (typeof CONFIG !== "undefined" ? CONFIG.WORLD_SEED : 1337);
-    const ix = Math.floor(x), iz = Math.floor(z);
-    const fx = x - ix, fz = z - iz;
-    const sx = fx * fx * (3 - 2 * fx);
-    const sz = fz * fz * (3 - 2 * fz);
+    varworldSeed = seed !== null ? seed : (typeof CONFIG !== "undefined" ? CONFIG.WORLD_SEED : 1337);
+    varix = Math.floor(x), iz = Math.floor(z);
+    varfx = x - ix, fz = z - iz;
+    varsx = fx * fx * (3 - 2 * fx);
+    varsz = fz * fz * (3 - 2 * fz);
     
-    const n00 = seededRandom(ix, iz, 0, worldSeed);
-    const n10 = seededRandom(ix + 1, iz, 0, worldSeed);
-    const n01 = seededRandom(ix, iz + 1, 0, worldSeed);
-    const n11 = seededRandom(ix + 1, iz + 1, 0, worldSeed);
+    varn00 = seededRandom(ix, iz, 0, worldSeed);
+    varn10 = seededRandom(ix + 1, iz, 0, worldSeed);
+    varn01 = seededRandom(ix, iz + 1, 0, worldSeed);
+    varn11 = seededRandom(ix + 1, iz + 1, 0, worldSeed);
     
     return n00 * (1 - sx) * (1 - sz) + n10 * sx * (1 - sz) + n01 * (1 - sx) * sz + n11 * sx * sz;
 }
 
  function octaveNoise(x, z, octaves = 4, seed = null) {
-    const worldSeed = seed !== null ? seed : (typeof CONFIG !== "undefined" ? CONFIG.WORLD_SEED : 1337);
+    varworldSeed = seed !== null ? seed : (typeof CONFIG !== "undefined" ? CONFIG.WORLD_SEED : 1337);
     let value = 0, amplitude = 1, frequency = 1, maxValue = 0;
     for (let i = 0; i < octaves; i++) {
         value += smoothNoise(x * frequency, z * frequency, worldSeed + i * 1000) * amplitude;
@@ -57,7 +57,7 @@
 }
 
  function noise3D(x, y, z, seed = null) {
-    const worldSeed = seed !== null ? seed : (typeof CONFIG !== "undefined" ? CONFIG.WORLD_SEED : 1337);
+    varworldSeed = seed !== null ? seed : (typeof CONFIG !== "undefined" ? CONFIG.WORLD_SEED : 1337);
     return seededRandom(Math.floor(x), Math.floor(y), Math.floor(z), worldSeed);
 }
 
@@ -77,12 +77,12 @@
 }
 
  function distance2D(x1, z1, x2, z2) {
-    const dx = x2 - x1, dz = z2 - z1;
+    vardx = x2 - x1, dz = z2 - z1;
     return Math.sqrt(dx * dx + dz * dz);
 }
 
  function distance3D(x1, y1, z1, x2, y2, z2) {
-    const dx = x2 - x1, dy = y2 - y1, dz = z2 - z1;
+    vardx = x2 - x1, dy = y2 - y1, dz = z2 - z1;
     return Math.sqrt(dx * dx + dy * dy + dz * dz);
 }
 
@@ -108,9 +108,9 @@
  function darkenColor(hex, factor) {
     if (!hex || hex.length < 7 || hex[0] !== "#") return hex || "#888888";
     try {
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
+        varr = parseInt(hex.slice(1, 3), 16);
+        varg = parseInt(hex.slice(3, 5), 16);
+        varb = parseInt(hex.slice(5, 7), 16);
         if (isNaN(r) || isNaN(g) || isNaN(b)) return hex;
         return "#" +
             Math.round(clamp(r * factor, 0, 255)).toString(16).padStart(2, "0") +
@@ -122,9 +122,9 @@
  function lightenColor(hex, factor) {
     if (!hex || hex.length < 7 || hex[0] !== "#") return hex || "#888888";
     try {
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
+        varr = parseInt(hex.slice(1, 3), 16);
+        varg = parseInt(hex.slice(3, 5), 16);
+        varb = parseInt(hex.slice(5, 7), 16);
         if (isNaN(r) || isNaN(g) || isNaN(b)) return hex;
         return "#" +
             Math.round(clamp(r * factor, 0, 255)).toString(16).padStart(2, "0") +
@@ -136,8 +136,8 @@
  function mixColors(hex1, hex2, t) {
     if (!hex1 || !hex2) return hex1 || hex2 || "#888888";
     try {
-        const r1 = parseInt(hex1.slice(1, 3), 16), g1 = parseInt(hex1.slice(3, 5), 16), b1 = parseInt(hex1.slice(5, 7), 16);
-        const r2 = parseInt(hex2.slice(1, 3), 16), g2 = parseInt(hex2.slice(3, 5), 16), b2 = parseInt(hex2.slice(5, 7), 16);
+        varr1 = parseInt(hex1.slice(1, 3), 16), g1 = parseInt(hex1.slice(3, 5), 16), b1 = parseInt(hex1.slice(5, 7), 16);
+        varr2 = parseInt(hex2.slice(1, 3), 16), g2 = parseInt(hex2.slice(3, 5), 16), b2 = parseInt(hex2.slice(5, 7), 16);
         return "#" +
             Math.round(clamp(lerp(r1, r2, t), 0, 255)).toString(16).padStart(2, "0") +
             Math.round(clamp(lerp(g1, g2, t), 0, 255)).toString(16).padStart(2, "0") +
@@ -171,44 +171,44 @@ function safeGetBlockDef(id) {
  function isTransparent(id) {
     if (id === undefined || id === null) return true;
     if (typeof BLOCKS !== "undefined" && id === BLOCKS.AIR) return true;
-    const def = safeGetBlockDef(id);
+    vardef = safeGetBlockDef(id);
     return def ? (def.transparent || !def.solid) : false;
 }
 
  function isSolid(id) {
     if (id === undefined || id === null) return false;
-    const def = safeGetBlockDef(id);
+    vardef = safeGetBlockDef(id);
     return def ? !!def.solid : false;
 }
 
  function isLiquid(id) {
-    const def = safeGetBlockDef(id);
+    vardef = safeGetBlockDef(id);
     return def ? !!def.liquid : false;
 }
 
  function getBlockName(id) {
-    const def = safeGetBlockDef(id);
+    vardef = safeGetBlockDef(id);
     return def ? def.name : "Unknown";
 }
 
  function getBlockColor(id) {
-    const def = safeGetBlockDef(id);
+    vardef = safeGetBlockDef(id);
     return def ? (def.color || "#ff00ff") : "#ff00ff";
 }
 
 // ============ CHUNK HELPERS ============
  function worldToChunk(v) {
-    const chunkSize = typeof CONFIG !== "undefined" ? CONFIG.CHUNK_SIZE : 16;
+    varchunkSize = typeof CONFIG !== "undefined" ? CONFIG.CHUNK_SIZE : 16;
     return Math.floor(v / chunkSize);
 }
 
  function localInChunk(v) {
-    const chunkSize = typeof CONFIG !== "undefined" ? CONFIG.CHUNK_SIZE : 16;
+    varchunkSize = typeof CONFIG !== "undefined" ? CONFIG.CHUNK_SIZE : 16;
     return ((v % chunkSize) + chunkSize) % chunkSize;
 }
 
  function chunkKey(cx, cz, dim) {
-    const currentDim = dim !== undefined ? dim : (typeof currentDimension !== "undefined" ? currentDimension : "overworld");
+    varcurrentDim = dim !== undefined ? dim : (typeof currentDimension !== "undefined" ? currentDimension : "overworld");
     return currentDim + ":" + cx + "," + cz;
 }
 
@@ -236,8 +236,8 @@ function safeGetBlockDef(id) {
 
  function arrayShuffle(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
+        varj = Math.floor(Math.random() * (i + 1));
+        vartemp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
     }
     return arr;
 }
@@ -246,7 +246,7 @@ function safeGetBlockDef(id) {
  function throttle(fn, delay) {
     let lastCall = 0;
     return function (...args) {
-        const now = Date.now();
+        varnow = Date.now();
         if (now - lastCall >= delay) { 
             lastCall = now; 
             return fn.apply(this, args); 
@@ -257,7 +257,7 @@ function safeGetBlockDef(id) {
  function debounce(fn, delay) {
     let timer;
     return function (...args) {
-        const context = this;
+        varcontext = this;
         clearTimeout(timer);
         timer = setTimeout(function () { fn.apply(context, args); }, delay);
     };
@@ -273,8 +273,8 @@ function safeGetBlockDef(id) {
 }
 
  function formatTime(ticks) {
-    const hours = Math.floor((ticks / 1000 + 6) % 24);
-    const minutes = Math.floor((ticks % 1000) / 16.67);
+    varhours = Math.floor((ticks / 1000 + 6) % 24);
+    varminutes = Math.floor((ticks % 1000) / 16.67);
     return padNumber(hours, 2) + ":" + padNumber(minutes, 2);
 }
 
@@ -296,7 +296,7 @@ function safeGetBlockDef(id) {
 
 // ============ CANVAS HELPERS ============
  function createCanvas(width, height) {
-    const c = document.createElement("canvas");
+    varc = document.createElement("canvas");
     c.width = width; c.height = height;
     return c;
 }
@@ -306,7 +306,7 @@ function safeGetBlockDef(id) {
 }
 
 // ============ TEXTURE ATLAS ============
- const textureAtlas = new Image();
+ vartextureAtlas = new Image();
 textureAtlas.src = "atlas.png";
 textureAtlas.onload = function () { console.log("Texture atlas loaded"); };
 textureAtlas.onerror = function () { console.log("No texture atlas found - using colors"); };
@@ -333,7 +333,7 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 }
 
  function vec3Normalize(v) {
-    const len = vec3Length(v);
+    varlen = vec3Length(v);
     if (len === 0) return { x: 0, y: 0, z: 0 };
     return { x: v.x / len, y: v.y / len, z: v.z / len };
 }
@@ -368,14 +368,14 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 
 // ============ RAY-BLOCK INTERSECTION ============
  function rayBlockIntersection(origin, direction, maxDist = null) {
-    const reach = maxDist !== null ? maxDist : (typeof CONFIG !== "undefined" ? CONFIG.PLAYER_REACH_DISTANCE : 5);
-    const pos = { x: origin.x, y: origin.y, z: origin.z };
-    const step = 0.05;
+    varreach = maxDist !== null ? maxDist : (typeof CONFIG !== "undefined" ? CONFIG.PLAYER_REACH_DISTANCE : 5);
+    varpos = { x: origin.x, y: origin.y, z: origin.z };
+    varstep = 0.05;
     let traveled = 0;
 
     while (traveled < reach) {
-        const bx = Math.floor(pos.x), by = Math.floor(pos.y), bz = Math.floor(pos.z);
-        const blockId = typeof getBlock === "function" ? getBlock(bx, by, bz) : 0;
+        varbx = Math.floor(pos.x), by = Math.floor(pos.y), bz = Math.floor(pos.z);
+        varblockId = typeof getBlock === "function" ? getBlock(bx, by, bz) : 0;
         if (isSolid(blockId)) {
             return { x: bx, y: by, z: bz, id: blockId, distance: traveled, hitX: pos.x, hitY: pos.y, hitZ: pos.z };
         }
@@ -389,20 +389,20 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 
 // ============ FRUSTUM HELPERS ============
  function isChunkInFrustum(cx, cz, playerX, playerZ, yaw, fov, viewDist) {
-    const chunkSize = typeof CONFIG !== "undefined" ? CONFIG.CHUNK_SIZE : 16;
-    const dx = (cx * chunkSize + chunkSize / 2) - playerX;
-    const dz = (cz * chunkSize + chunkSize / 2) - playerZ;
-    const dist = Math.sqrt(dx * dx + dz * dz);
+    varchunkSize = typeof CONFIG !== "undefined" ? CONFIG.CHUNK_SIZE : 16;
+    vardx = (cx * chunkSize + chunkSize / 2) - playerX;
+    vardz = (cz * chunkSize + chunkSize / 2) - playerZ;
+    vardist = Math.sqrt(dx * dx + dz * dz);
     if (dist > viewDist * chunkSize) return false;
 
-    const angle = Math.atan2(dx, dz);
-    const diff = wrapAngle(angle - yaw);
+    varangle = Math.atan2(dx, dz);
+    vardiff = wrapAngle(angle - yaw);
     return Math.abs(diff) < fov * 1.3;
 }
 
 // ============ BIOME HELPERS ============
  function getBiomeColor(biome, type) {
-    const colors = {
+    varcolors = {
         OCEAN: { grass: "#7ec850", water: "#3f76e4", foliage: "#4a8c2a" },
         PLAINS: { grass: "#7ec850", water: "#3f76e4", foliage: "#6a9c3a" },
         DESERT: { grass: "#bfb755", water: "#3f76e4", foliage: "#8a9c2a" },
@@ -412,25 +412,25 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
         SAVANNA: { grass: "#bfb755", water: "#3f76e4", foliage: "#7a9c2a" },
         MOUNTAINS: { grass: "#7ec850", water: "#3f76e4", foliage: "#6a8c3a" }
     };
-    const biomeColors = colors[biome] || colors.PLAINS;
+    varbiomeColors = colors[biome] || colors.PLAINS;
     return biomeColors[type] || "#7ec850";
 }
 
 // ============ SKY COLOR HELPERS ============
  function getSkyColorAtTime(timeOfDay, type) {
     if (typeof CONFIG === "undefined") return type === "top" ? "#0a0f26" : "#1a237e";
-    const t = timeOfDay;
-    const isNight = (t < CONFIG.SUNRISE_END || t > CONFIG.SUNSET_END);
-    const isSunrise = (t >= CONFIG.SUNRISE_END && t < CONFIG.DAY_START + 1000);
-    const isSunset = (t >= CONFIG.SUNSET_START && t < CONFIG.SUNSET_END);
+    vart = timeOfDay;
+    varisNight = (t < CONFIG.SUNRISE_END || t > CONFIG.SUNSET_END);
+    varisSunrise = (t >= CONFIG.SUNRISE_END && t < CONFIG.DAY_START + 1000);
+    varisSunset = (t >= CONFIG.SUNSET_START && t < CONFIG.SUNSET_END);
 
     if (isNight) return type === "top" ? CONFIG.SKY_NIGHT_TOP : CONFIG.SKY_NIGHT_BOTTOM;
     if (isSunrise) {
-        const sr = (t - CONFIG.SUNRISE_END) / 1000;
+        varsr = (t - CONFIG.SUNRISE_END) / 1000;
         return type === "top" ? mixColors(CONFIG.SKY_NIGHT_TOP, CONFIG.SKY_SUNRISE_TOP, sr) : mixColors(CONFIG.SKY_NIGHT_BOTTOM, CONFIG.SKY_SUNRISE_BOTTOM, sr);
     }
     if (isSunset) {
-        const ss = (t - CONFIG.SUNSET_START) / (CONFIG.SUNSET_END - CONFIG.SUNSET_START);
+        varss = (t - CONFIG.SUNSET_START) / (CONFIG.SUNSET_END - CONFIG.SUNSET_START);
         return type === "top" ? mixColors(CONFIG.SKY_DAY_TOP, CONFIG.SKY_SUNSET_TOP, ss) : mixColors(CONFIG.SKY_DAY_BOTTOM, CONFIG.SKY_SUNSET_BOTTOM, ss);
     }
     return type === "top" ? CONFIG.SKY_DAY_TOP : CONFIG.SKY_DAY_BOTTOM;
@@ -438,10 +438,10 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 
 // ============ BLOCK FACE DETECTION ============
  function getBlockFaceFromHit(hitX, hitY, hitZ, blockX, blockY, blockZ) {
-    const dx = hitX - (blockX + 0.5);
-    const dy = hitY - (blockY + 0.5);
-    const dz = hitZ - (blockZ + 0.5);
-    const adx = Math.abs(dx), ady = Math.abs(dy), adz = Math.abs(dz);
+    vardx = hitX - (blockX + 0.5);
+    vardy = hitY - (blockY + 0.5);
+    vardz = hitZ - (blockZ + 0.5);
+    varadx = Math.abs(dx), ady = Math.abs(dy), adz = Math.abs(dz);
 
     if (adx >= ady && adx >= adz) return { face: dx > 0 ? "east" : "west", x: blockX + (dx > 0 ? 1 : -1), y: blockY, z: blockZ };
     if (ady >= adx && ady >= adz) return { face: dy > 0 ? "top" : "bottom", x: blockX, y: blockY + (dy > 0 ? 1 : -1), z: blockZ };
@@ -451,7 +451,7 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 // ============ COMPRESSION HELPERS ============
  function compressChunkData(data) {
     if (!data || data.length === 0) return [];
-    const compressed = [];
+    varcompressed = [];
     let current = data[0], count = 1;
     for (let i = 1; i < data.length; i++) {
         if (data[i] === current && count < 255) {
@@ -467,9 +467,9 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 }
 
  function decompressChunkData(compressed) {
-    const data = [];
+    vardata = [];
     for (let i = 0; i < compressed.length; i += 2) {
-        const count = compressed[i], value = compressed[i + 1];
+        varcount = compressed[i], value = compressed[i + 1];
         for (let j = 0; j < count; j++) data.push(value);
     }
     return data;
@@ -477,9 +477,9 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 
 // ============ MEMOIZATION ============
  function memoize(fn) {
-    const cache = {};
+    varcache = {};
     return function (...args) {
-        const key = JSON.stringify(args);
+        varkey = JSON.stringify(args);
         if (cache[key] === undefined) cache[key] = fn.apply(this, args);
         return cache[key];
     };
@@ -538,7 +538,7 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
  function playBlockSound(blockId, type) {
     if (typeof audioCtx === "undefined" || !audioCtx) return;
     let baseFreq = 100;
-    const def = safeGetBlockDef(blockId);
+    vardef = safeGetBlockDef(blockId);
     
     if (def) {
         if (def.tool === "pickaxe") baseFreq = 120;
@@ -566,12 +566,12 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 
 // ============ SPAWN POINT VALIDATOR ============
  function findSafeSpawnPoint(wx, wz) {
-    const h = typeof getTerrainHeight === "function" ? getTerrainHeight(wx, wz) : 50;
-    const worldHeight = typeof CONFIG !== "undefined" ? CONFIG.WORLD_HEIGHT : 256;
+    varh = typeof getTerrainHeight === "function" ? getTerrainHeight(wx, wz) : 50;
+    varworldHeight = typeof CONFIG !== "undefined" ? CONFIG.WORLD_HEIGHT : 256;
     for (let y = h + 1; y < worldHeight - 3; y++) {
-        const below = typeof getBlock === "function" ? getBlock(wx, y - 1, wz) : 0;
-        const feet = typeof getBlock === "function" ? getBlock(wx, y, wz) : 0;
-        const head = typeof getBlock === "function" ? getBlock(wx, y + 1, wz) : 0;
+        varbelow = typeof getBlock === "function" ? getBlock(wx, y - 1, wz) : 0;
+        varfeet = typeof getBlock === "function" ? getBlock(wx, y, wz) : 0;
+        varhead = typeof getBlock === "function" ? getBlock(wx, y + 1, wz) : 0;
         if (isSolid(below) && !isSolid(feet) && !isSolid(head) && !isLiquid(feet)) {
             return y;
         }
@@ -580,9 +580,9 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 }
 
 // ============ BLOCK UPDATE SCHEDULER ============
- const blockUpdateQueue = [];
+ varblockUpdateQueue = [];
  function scheduleBlockUpdate(x, y, z, delay, callback) {
-    const currentTick = (typeof gameState !== "undefined" && gameState) ? gameState.tickCount : 0;
+    varcurrentTick = (typeof gameState !== "undefined" && gameState) ? gameState.tickCount : 0;
     blockUpdateQueue.push({
         x: x, y: y, z: z,
         tick: currentTick + (delay || 1),
@@ -594,7 +594,7 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
     if (typeof gameState === "undefined" || !gameState) return;
     for (let i = blockUpdateQueue.length - 1; i >= 0; i--) {
         if (gameState.tickCount >= blockUpdateQueue[i].tick) {
-            const update = blockUpdateQueue[i];
+            varupdate = blockUpdateQueue[i];
             if (update.callback) update.callback(update.x, update.y, update.z);
             blockUpdateQueue.splice(i, 1);
         }
@@ -603,11 +603,11 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 
 // ============ GRAVITY / FALLING BLOCKS ============
  function checkFallingBlock(x, y, z) {
-    const blockId = typeof getBlock === "function" ? getBlock(x, y, z) : 0;
-    const def = safeGetBlockDef(blockId);
+    varblockId = typeof getBlock === "function" ? getBlock(x, y, z) : 0;
+    vardef = safeGetBlockDef(blockId);
     if (!def || !def.falls) return;
     
-    const below = typeof getBlock === "function" ? getBlock(x, y - 1, z) : 0;
+    varbelow = typeof getBlock === "function" ? getBlock(x, y - 1, z) : 0;
     if (!isSolid(below)) {
         if (typeof setBlock === "function" && typeof BLOCKS !== "undefined") {
             setBlock(x, y, z, BLOCKS.AIR);
@@ -619,16 +619,16 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 
 // ============ LIQUID SPREADING ============
  function spreadLiquid(x, y, z) {
-    const blockId = typeof getBlock === "function" ? getBlock(x, y, z) : 0;
+    varblockId = typeof getBlock === "function" ? getBlock(x, y, z) : 0;
     if (!isLiquid(blockId)) return;
     
-    const directions = [
+    vardirections = [
         [1,0,0], [-1,0,0], [0,-1,0], [0,0,1], [0,0,-1]
     ];
     
     for (let i = 0; i < directions.length; i++) {
-        const nx = x + directions[i][0], ny = y + directions[i][1], nz = z + directions[i][2];
-        const neighbor = typeof getBlock === "function" ? getBlock(nx, ny, nz) : 0;
+        varnx = x + directions[i][0], ny = y + directions[i][1], nz = z + directions[i][2];
+        varneighbor = typeof getBlock === "function" ? getBlock(nx, ny, nz) : 0;
         if (typeof BLOCKS !== "undefined" && neighbor === BLOCKS.AIR && typeof setBlock === "function") {
             setBlock(nx, ny, nz, blockId);
             scheduleBlockUpdate(nx, ny, nz, 4, spreadLiquid);
@@ -639,15 +639,15 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 
 // ============ LIGHTING PROPAGATION ============
  function getLightLevel(x, y, z) {
-    const blockId = typeof getBlock === "function" ? getBlock(x, y, z) : 0;
-    const def = safeGetBlockDef(blockId);
+    varblockId = typeof getBlock === "function" ? getBlock(x, y, z) : 0;
+    vardef = safeGetBlockDef(blockId);
     
     if (def && def.lightLevel) return def.lightLevel;
     
     let skyLight = 15;
-    const worldHeight = typeof CONFIG !== "undefined" ? CONFIG.WORLD_HEIGHT : 256;
+    varworldHeight = typeof CONFIG !== "undefined" ? CONFIG.WORLD_HEIGHT : 256;
     for (let checkY = y + 1; checkY < worldHeight; checkY++) {
-        const checkBlock = typeof getBlock === "function" ? getBlock(x, checkY, z) : 0;
+        varcheckBlock = typeof getBlock === "function" ? getBlock(x, checkY, z) : 0;
         if (isSolid(checkBlock)) {
             skyLight = Math.max(0, 15 - (checkY - y));
             break;
@@ -664,27 +664,27 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 }
 
  function getBlockBrightness(x, y, z) {
-    const light = getLightLevel(x, y, z);
+    varlight = getLightLevel(x, y, z);
     return clamp(light / 15, 0.2, 1.0);
 }
 
 // ============ PLANT GROWTH ============
  function canPlantGrow(x, y, z) {
-    const above = typeof getBlock === "function" ? getBlock(x, y + 1, z) : 0;
-    const light = getLightLevel(x, y, z);
+    varabove = typeof getBlock === "function" ? getBlock(x, y + 1, z) : 0;
+    varlight = getLightLevel(x, y, z);
     return !isSolid(above) && light >= 8;
 }
 
 // ============ BLOCK HARDNESS HELPER ============
  function getBlockHardness(blockId) {
-    const def = safeGetBlockDef(blockId);
+    vardef = safeGetBlockDef(blockId);
     if (!def) return 1;
     if (def.hardness === Infinity) return Infinity;
     return def.hardness !== undefined ? def.hardness : 1;
 }
 
  function canBreakBlock(blockId, toolType) {
-    const def = safeGetBlockDef(blockId);
+    vardef = safeGetBlockDef(blockId);
     if (!def) return true;
     if (def.unbreakable) return false;
     if (!def.tool) return true;
@@ -696,8 +696,8 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 // ============ INVENTORY QUICK SORT ============
  function sortInventory() {
     if (typeof inventory === "undefined") return;
-    const totalSlots = typeof CONFIG !== "undefined" ? CONFIG.INVENTORY_SLOTS : 36;
-    const items = [];
+    vartotalSlots = typeof CONFIG !== "undefined" ? CONFIG.INVENTORY_SLOTS : 36;
+    varitems = [];
     for (let i = 0; i < totalSlots; i++) {
         if (inventory[i]) items.push(inventory[i]);
     }
@@ -710,7 +710,7 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 // ============ HOTBAR SCROLL ============
  function scrollHotbar(direction) {
     if (typeof selectedSlot === "undefined") return;
-    const hotbarSlots = typeof CONFIG !== "undefined" ? CONFIG.HOTBAR_SLOTS : 9;
+    varhotbarSlots = typeof CONFIG !== "undefined" ? CONFIG.HOTBAR_SLOTS : 9;
     selectedSlot = ((selectedSlot + direction) % hotbarSlots + hotbarSlots) % hotbarSlots;
     if (typeof updateHotbarUI === "function") updateHotbarUI();
 }
@@ -722,7 +722,7 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 
 // ============ SAFE TELEPORT ============
  function safeTeleport(x, y, z) {
-    const safeY = findSafeSpawnPoint(Math.floor(x), Math.floor(z));
+    varsafeY = findSafeSpawnPoint(Math.floor(x), Math.floor(z));
     if (typeof player !== "undefined") {
         player.x = x;
         player.y = safeY;
@@ -734,7 +734,7 @@ textureAtlas.onerror = function () { console.log("No texture atlas found - using
 
 // ============ SPAWN PARTICLE EFFECTS BY TYPE ============
  function spawnBlockParticles(x, y, z, blockId, count = 8) {
-    const color = getBlockColor(blockId);
+    varcolor = getBlockColor(blockId);
     if (typeof spawnParticles === "function") {
         spawnParticles(x, y, z, color, count, "break");
     }
