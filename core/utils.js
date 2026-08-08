@@ -4,7 +4,7 @@
 // ============================================
 
 // ============ SEEDED RANDOM (32-bit safe, deterministic) ============
-export function seededRandom(x, y, z = 0, seed = null) {
+ function seededRandom(x, y, z = 0, seed = null) {
     const worldSeed = seed !== null ? seed : (typeof CONFIG !== "undefined" ? CONFIG.WORLD_SEED : 1337);
     let n = (((x * 374761393) | 0) + ((y * 668265263) | 0) + ((z * 1274126177) | 0) + ((worldSeed * 1013904223) | 0)) | 0;
     n = ((n ^ (n >>> 13)) * 1274126177) | 0;
@@ -12,24 +12,24 @@ export function seededRandom(x, y, z = 0, seed = null) {
 }
 
 // ============ SIMPLE RANDOM (non-seeded) ============
-export function randomInt(min, max) {
+ function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export function randomFloat(min, max) {
+ function randomFloat(min, max) {
     return Math.random() * (max - min) + min;
 }
 
-export function randomChance(probability) {
+ function randomChance(probability) {
     return Math.random() < probability;
 }
 
-export function randomPick(array) {
+ function randomPick(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
 // ============ PERLIN / SMOOTH NOISE ============
-export function smoothNoise(x, z, seed = null) {
+ function smoothNoise(x, z, seed = null) {
     const worldSeed = seed !== null ? seed : (typeof CONFIG !== "undefined" ? CONFIG.WORLD_SEED : 1337);
     const ix = Math.floor(x), iz = Math.floor(z);
     const fx = x - ix, fz = z - iz;
@@ -44,7 +44,7 @@ export function smoothNoise(x, z, seed = null) {
     return n00 * (1 - sx) * (1 - sz) + n10 * sx * (1 - sz) + n01 * (1 - sx) * sz + n11 * sx * sz;
 }
 
-export function octaveNoise(x, z, octaves = 4, seed = null) {
+ function octaveNoise(x, z, octaves = 4, seed = null) {
     const worldSeed = seed !== null ? seed : (typeof CONFIG !== "undefined" ? CONFIG.WORLD_SEED : 1337);
     let value = 0, amplitude = 1, frequency = 1, maxValue = 0;
     for (let i = 0; i < octaves; i++) {
@@ -56,56 +56,56 @@ export function octaveNoise(x, z, octaves = 4, seed = null) {
     return value / maxValue;
 }
 
-export function noise3D(x, y, z, seed = null) {
+ function noise3D(x, y, z, seed = null) {
     const worldSeed = seed !== null ? seed : (typeof CONFIG !== "undefined" ? CONFIG.WORLD_SEED : 1337);
     return seededRandom(Math.floor(x), Math.floor(y), Math.floor(z), worldSeed);
 }
 
 // ============ MATH HELPERS ============
-export function clamp(value, min, max) {
+ function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
 }
 
-export function lerp(a, b, t) {
+ function lerp(a, b, t) {
     return a + (b - a) * t;
 }
 
-export function smoothstep(a, b, t) {
+ function smoothstep(a, b, t) {
     t = clamp(t, 0, 1);
     t = t * t * (3 - 2 * t);
     return a + (b - a) * t;
 }
 
-export function distance2D(x1, z1, x2, z2) {
+ function distance2D(x1, z1, x2, z2) {
     const dx = x2 - x1, dz = z2 - z1;
     return Math.sqrt(dx * dx + dz * dz);
 }
 
-export function distance3D(x1, y1, z1, x2, y2, z2) {
+ function distance3D(x1, y1, z1, x2, y2, z2) {
     const dx = x2 - x1, dy = y2 - y1, dz = z2 - z1;
     return Math.sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-export function degToRad(degrees) {
+ function degToRad(degrees) {
     return degrees * (Math.PI / 180);
 }
 
-export function radToDeg(radians) {
+ function radToDeg(radians) {
     return radians * (180 / Math.PI);
 }
 
-export function wrapAngle(angle) {
+ function wrapAngle(angle) {
     while (angle > Math.PI) angle -= Math.PI * 2;
     while (angle < -Math.PI) angle += Math.PI * 2;
     return angle;
 }
 
-export function floorTo(value, step) {
+ function floorTo(value, step) {
     return Math.floor(value / step) * step;
 }
 
 // ============ COLOR HELPERS ============
-export function darkenColor(hex, factor) {
+ function darkenColor(hex, factor) {
     if (!hex || hex.length < 7 || hex[0] !== "#") return hex || "#888888";
     try {
         const r = parseInt(hex.slice(1, 3), 16);
@@ -119,7 +119,7 @@ export function darkenColor(hex, factor) {
     } catch (e) { return hex; }
 }
 
-export function lightenColor(hex, factor) {
+ function lightenColor(hex, factor) {
     if (!hex || hex.length < 7 || hex[0] !== "#") return hex || "#888888";
     try {
         const r = parseInt(hex.slice(1, 3), 16);
@@ -133,7 +133,7 @@ export function lightenColor(hex, factor) {
     } catch (e) { return hex; }
 }
 
-export function mixColors(hex1, hex2, t) {
+ function mixColors(hex1, hex2, t) {
     if (!hex1 || !hex2) return hex1 || hex2 || "#888888";
     try {
         const r1 = parseInt(hex1.slice(1, 3), 16), g1 = parseInt(hex1.slice(3, 5), 16), b1 = parseInt(hex1.slice(5, 7), 16);
@@ -145,7 +145,7 @@ export function mixColors(hex1, hex2, t) {
     } catch (e) { return hex1; }
 }
 
-export function hexToRgb(hex) {
+ function hexToRgb(hex) {
     if (!hex || hex.length < 7) return { r: 136, g: 136, b: 136 };
     return {
         r: parseInt(hex.slice(1, 3), 16),
@@ -154,7 +154,7 @@ export function hexToRgb(hex) {
     };
 }
 
-export function rgbToHex(r, g, b) {
+ function rgbToHex(r, g, b) {
     return "#" +
         clamp(r, 0, 255).toString(16).padStart(2, "0") +
         clamp(g, 0, 255).toString(16).padStart(2, "0") +
@@ -168,52 +168,52 @@ function safeGetBlockDef(id) {
     return null;
 }
 
-export function isTransparent(id) {
+ function isTransparent(id) {
     if (id === undefined || id === null) return true;
     if (typeof BLOCKS !== "undefined" && id === BLOCKS.AIR) return true;
     const def = safeGetBlockDef(id);
     return def ? (def.transparent || !def.solid) : false;
 }
 
-export function isSolid(id) {
+ function isSolid(id) {
     if (id === undefined || id === null) return false;
     const def = safeGetBlockDef(id);
     return def ? !!def.solid : false;
 }
 
-export function isLiquid(id) {
+ function isLiquid(id) {
     const def = safeGetBlockDef(id);
     return def ? !!def.liquid : false;
 }
 
-export function getBlockName(id) {
+ function getBlockName(id) {
     const def = safeGetBlockDef(id);
     return def ? def.name : "Unknown";
 }
 
-export function getBlockColor(id) {
+ function getBlockColor(id) {
     const def = safeGetBlockDef(id);
     return def ? (def.color || "#ff00ff") : "#ff00ff";
 }
 
 // ============ CHUNK HELPERS ============
-export function worldToChunk(v) {
+ function worldToChunk(v) {
     const chunkSize = typeof CONFIG !== "undefined" ? CONFIG.CHUNK_SIZE : 16;
     return Math.floor(v / chunkSize);
 }
 
-export function localInChunk(v) {
+ function localInChunk(v) {
     const chunkSize = typeof CONFIG !== "undefined" ? CONFIG.CHUNK_SIZE : 16;
     return ((v % chunkSize) + chunkSize) % chunkSize;
 }
 
-export function chunkKey(cx, cz, dim) {
+ function chunkKey(cx, cz, dim) {
     const currentDim = dim !== undefined ? dim : (typeof currentDimension !== "undefined" ? currentDimension : "overworld");
     return currentDim + ":" + cx + "," + cz;
 }
 
 // ============ AABB COLLISION ============
-export function aabbColliding(ax, ay, az, aw, ah, ad, bx, by, bz, bw, bh, bd) {
+ function aabbColliding(ax, ay, az, aw, ah, ad, bx, by, bz, bw, bh, bd) {
     return (
         ax < bx + bw && ax + aw > bx &&
         ay < by + bh && ay + ah > by &&
@@ -221,7 +221,7 @@ export function aabbColliding(ax, ay, az, aw, ah, ad, bx, by, bz, bw, bh, bd) {
     );
 }
 
-export function pointInAABB(px, py, pz, bx, by, bz, bw, bh, bd) {
+ function pointInAABB(px, py, pz, bx, by, bz, bw, bh, bd) {
     return (
         px >= bx && px <= bx + bw &&
         py >= by && py <= by + bh &&
@@ -230,11 +230,11 @@ export function pointInAABB(px, py, pz, bx, by, bz, bw, bh, bd) {
 }
 
 // ============ ARRAY HELPERS ============
-export function arrayRemove(arr, index) {
+ function arrayRemove(arr, index) {
     if (index > -1) arr.splice(index, 1);
 }
 
-export function arrayShuffle(arr) {
+ function arrayShuffle(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         const temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
@@ -243,7 +243,7 @@ export function arrayShuffle(arr) {
 }
 
 // ============ PERFORMANCE ============
-export function throttle(fn, delay) {
+ function throttle(fn, delay) {
     let lastCall = 0;
     return function (...args) {
         const now = Date.now();
@@ -254,7 +254,7 @@ export function throttle(fn, delay) {
     };
 }
 
-export function debounce(fn, delay) {
+ function debounce(fn, delay) {
     let timer;
     return function (...args) {
         const context = this;
@@ -264,85 +264,85 @@ export function debounce(fn, delay) {
 }
 
 // ============ FORMATTING ============
-export function formatNumber(n) {
+ function formatNumber(n) {
     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-export function padNumber(n, width) {
+ function padNumber(n, width) {
     return n.toString().padStart(width, "0");
 }
 
-export function formatTime(ticks) {
+ function formatTime(ticks) {
     const hours = Math.floor((ticks / 1000 + 6) % 24);
     const minutes = Math.floor((ticks % 1000) / 16.67);
     return padNumber(hours, 2) + ":" + padNumber(minutes, 2);
 }
 
 // ============ LOGGING ============
-export function logDebug(msg) { 
+ function logDebug(msg) { 
     if (typeof CONFIG !== "undefined" && CONFIG.SHOW_DEBUG_ON_F3) console.log("[DEBUG]", msg); 
 }
-export function logWarning(msg) { console.warn("[WARN]", msg); }
-export function logError(msg) { console.error("[ERROR]", msg); }
+ function logWarning(msg) { console.warn("[WARN]", msg); }
+ function logError(msg) { console.error("[ERROR]", msg); }
 
 // ============ STRING HELPERS ============
-export function capitalize(str) {
+ function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function toSnakeCase(str) {
+ function toSnakeCase(str) {
     return str.replace(/([A-Z])/g, "_$1").toLowerCase().replace(/^_/, "");
 }
 
 // ============ CANVAS HELPERS ============
-export function createCanvas(width, height) {
+ function createCanvas(width, height) {
     const c = document.createElement("canvas");
     c.width = width; c.height = height;
     return c;
 }
 
-export function getCanvasContext(canvas, type = "2d") {
+ function getCanvasContext(canvas, type = "2d") {
     return canvas.getContext(type);
 }
 
 // ============ TEXTURE ATLAS ============
-export const textureAtlas = new Image();
+ const textureAtlas = new Image();
 textureAtlas.src = "atlas.png";
 textureAtlas.onload = function () { console.log("Texture atlas loaded"); };
 textureAtlas.onerror = function () { console.log("No texture atlas found - using colors"); };
 
 // ============ VECTOR3 HELPERS ============
-export function vec3(x = 0, y = 0, z = 0) {
+ function vec3(x = 0, y = 0, z = 0) {
     return { x, y, z };
 }
 
-export function vec3Add(a, b) {
+ function vec3Add(a, b) {
     return { x: a.x + b.x, y: a.y + b.y, z: a.z + b.z };
 }
 
-export function vec3Sub(a, b) {
+ function vec3Sub(a, b) {
     return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
 }
 
-export function vec3Scale(v, s) {
+ function vec3Scale(v, s) {
     return { x: v.x * s, y: v.y * s, z: v.z * s };
 }
 
-export function vec3Length(v) {
+ function vec3Length(v) {
     return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
-export function vec3Normalize(v) {
+ function vec3Normalize(v) {
     const len = vec3Length(v);
     if (len === 0) return { x: 0, y: 0, z: 0 };
     return { x: v.x / len, y: v.y / len, z: v.z / len };
 }
 
-export function vec3Dot(a, b) {
+ function vec3Dot(a, b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
-export function vec3Cross(a, b) {
+ function vec3Cross(a, b) {
     return {
         x: a.y * b.z - a.z * b.y,
         y: a.z * b.x - a.x * b.z,
@@ -350,11 +350,11 @@ export function vec3Cross(a, b) {
     };
 }
 
-export function vec3Distance(a, b) {
+ function vec3Distance(a, b) {
     return distance3D(a.x, a.y, a.z, b.x, b.y, b.z);
 }
 
-export function vec3Lerp(a, b, t) {
+ function vec3Lerp(a, b, t) {
     return {
         x: lerp(a.x, b.x, t),
         y: lerp(a.y, b.y, t),
@@ -362,12 +362,12 @@ export function vec3Lerp(a, b, t) {
     };
 }
 
-export function vec3Floor(v) {
+ function vec3Floor(v) {
     return { x: Math.floor(v.x), y: Math.floor(v.y), z: Math.floor(v.z) };
 }
 
 // ============ RAY-BLOCK INTERSECTION ============
-export function rayBlockIntersection(origin, direction, maxDist = null) {
+ function rayBlockIntersection(origin, direction, maxDist = null) {
     const reach = maxDist !== null ? maxDist : (typeof CONFIG !== "undefined" ? CONFIG.PLAYER_REACH_DISTANCE : 5);
     const pos = { x: origin.x, y: origin.y, z: origin.z };
     const step = 0.05;
@@ -388,7 +388,7 @@ export function rayBlockIntersection(origin, direction, maxDist = null) {
 }
 
 // ============ FRUSTUM HELPERS ============
-export function isChunkInFrustum(cx, cz, playerX, playerZ, yaw, fov, viewDist) {
+ function isChunkInFrustum(cx, cz, playerX, playerZ, yaw, fov, viewDist) {
     const chunkSize = typeof CONFIG !== "undefined" ? CONFIG.CHUNK_SIZE : 16;
     const dx = (cx * chunkSize + chunkSize / 2) - playerX;
     const dz = (cz * chunkSize + chunkSize / 2) - playerZ;
@@ -401,7 +401,7 @@ export function isChunkInFrustum(cx, cz, playerX, playerZ, yaw, fov, viewDist) {
 }
 
 // ============ BIOME HELPERS ============
-export function getBiomeColor(biome, type) {
+ function getBiomeColor(biome, type) {
     const colors = {
         OCEAN: { grass: "#7ec850", water: "#3f76e4", foliage: "#4a8c2a" },
         PLAINS: { grass: "#7ec850", water: "#3f76e4", foliage: "#6a9c3a" },
@@ -417,7 +417,7 @@ export function getBiomeColor(biome, type) {
 }
 
 // ============ SKY COLOR HELPERS ============
-export function getSkyColorAtTime(timeOfDay, type) {
+ function getSkyColorAtTime(timeOfDay, type) {
     if (typeof CONFIG === "undefined") return type === "top" ? "#0a0f26" : "#1a237e";
     const t = timeOfDay;
     const isNight = (t < CONFIG.SUNRISE_END || t > CONFIG.SUNSET_END);
@@ -437,7 +437,7 @@ export function getSkyColorAtTime(timeOfDay, type) {
 }
 
 // ============ BLOCK FACE DETECTION ============
-export function getBlockFaceFromHit(hitX, hitY, hitZ, blockX, blockY, blockZ) {
+ function getBlockFaceFromHit(hitX, hitY, hitZ, blockX, blockY, blockZ) {
     const dx = hitX - (blockX + 0.5);
     const dy = hitY - (blockY + 0.5);
     const dz = hitZ - (blockZ + 0.5);
@@ -449,7 +449,7 @@ export function getBlockFaceFromHit(hitX, hitY, hitZ, blockX, blockY, blockZ) {
 }
 
 // ============ COMPRESSION HELPERS ============
-export function compressChunkData(data) {
+ function compressChunkData(data) {
     if (!data || data.length === 0) return [];
     const compressed = [];
     let current = data[0], count = 1;
@@ -466,7 +466,7 @@ export function compressChunkData(data) {
     return compressed;
 }
 
-export function decompressChunkData(compressed) {
+ function decompressChunkData(compressed) {
     const data = [];
     for (let i = 0; i < compressed.length; i += 2) {
         const count = compressed[i], value = compressed[i + 1];
@@ -476,7 +476,7 @@ export function decompressChunkData(compressed) {
 }
 
 // ============ MEMOIZATION ============
-export function memoize(fn) {
+ function memoize(fn) {
     const cache = {};
     return function (...args) {
         const key = JSON.stringify(args);
@@ -486,12 +486,12 @@ export function memoize(fn) {
 }
 
 // ============ ID GENERATOR ============
-export function generateId() {
+ function generateId() {
     return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
 }
 
 // ============ EVENT EMITTER ============
-export function createEventEmitter() {
+ function createEventEmitter() {
     let listeners = {};
     return {
         on: function (event, fn) {
@@ -512,7 +512,7 @@ export function createEventEmitter() {
 }
 
 // ============ TIMER ============
-export function createTimer() {
+ function createTimer() {
     let startTime = Date.now();
     return {
         reset: function () { startTime = Date.now(); },
@@ -522,7 +522,7 @@ export function createTimer() {
 }
 
 // ============ QUEUE ============
-export function createQueue() {
+ function createQueue() {
     let items = [];
     return {
         enqueue: function (item) { items.push(item); },
@@ -535,7 +535,7 @@ export function createQueue() {
 }
 
 // ============ SOUND HELPER ============
-export function playBlockSound(blockId, type) {
+ function playBlockSound(blockId, type) {
     if (typeof audioCtx === "undefined" || !audioCtx) return;
     let baseFreq = 100;
     const def = safeGetBlockDef(blockId);
@@ -565,7 +565,7 @@ export function playBlockSound(blockId, type) {
 }
 
 // ============ SPAWN POINT VALIDATOR ============
-export function findSafeSpawnPoint(wx, wz) {
+ function findSafeSpawnPoint(wx, wz) {
     const h = typeof getTerrainHeight === "function" ? getTerrainHeight(wx, wz) : 50;
     const worldHeight = typeof CONFIG !== "undefined" ? CONFIG.WORLD_HEIGHT : 256;
     for (let y = h + 1; y < worldHeight - 3; y++) {
@@ -580,8 +580,8 @@ export function findSafeSpawnPoint(wx, wz) {
 }
 
 // ============ BLOCK UPDATE SCHEDULER ============
-export const blockUpdateQueue = [];
-export function scheduleBlockUpdate(x, y, z, delay, callback) {
+ const blockUpdateQueue = [];
+ function scheduleBlockUpdate(x, y, z, delay, callback) {
     const currentTick = (typeof gameState !== "undefined" && gameState) ? gameState.tickCount : 0;
     blockUpdateQueue.push({
         x: x, y: y, z: z,
@@ -590,7 +590,7 @@ export function scheduleBlockUpdate(x, y, z, delay, callback) {
     });
 }
 
-export function processBlockUpdates() {
+ function processBlockUpdates() {
     if (typeof gameState === "undefined" || !gameState) return;
     for (let i = blockUpdateQueue.length - 1; i >= 0; i--) {
         if (gameState.tickCount >= blockUpdateQueue[i].tick) {
@@ -602,7 +602,7 @@ export function processBlockUpdates() {
 }
 
 // ============ GRAVITY / FALLING BLOCKS ============
-export function checkFallingBlock(x, y, z) {
+ function checkFallingBlock(x, y, z) {
     const blockId = typeof getBlock === "function" ? getBlock(x, y, z) : 0;
     const def = safeGetBlockDef(blockId);
     if (!def || !def.falls) return;
@@ -618,7 +618,7 @@ export function checkFallingBlock(x, y, z) {
 }
 
 // ============ LIQUID SPREADING ============
-export function spreadLiquid(x, y, z) {
+ function spreadLiquid(x, y, z) {
     const blockId = typeof getBlock === "function" ? getBlock(x, y, z) : 0;
     if (!isLiquid(blockId)) return;
     
@@ -638,7 +638,7 @@ export function spreadLiquid(x, y, z) {
 }
 
 // ============ LIGHTING PROPAGATION ============
-export function getLightLevel(x, y, z) {
+ function getLightLevel(x, y, z) {
     const blockId = typeof getBlock === "function" ? getBlock(x, y, z) : 0;
     const def = safeGetBlockDef(blockId);
     
@@ -663,27 +663,27 @@ export function getLightLevel(x, y, z) {
     return Math.max(0, skyLight);
 }
 
-export function getBlockBrightness(x, y, z) {
+ function getBlockBrightness(x, y, z) {
     const light = getLightLevel(x, y, z);
     return clamp(light / 15, 0.2, 1.0);
 }
 
 // ============ PLANT GROWTH ============
-export function canPlantGrow(x, y, z) {
+ function canPlantGrow(x, y, z) {
     const above = typeof getBlock === "function" ? getBlock(x, y + 1, z) : 0;
     const light = getLightLevel(x, y, z);
     return !isSolid(above) && light >= 8;
 }
 
 // ============ BLOCK HARDNESS HELPER ============
-export function getBlockHardness(blockId) {
+ function getBlockHardness(blockId) {
     const def = safeGetBlockDef(blockId);
     if (!def) return 1;
     if (def.hardness === Infinity) return Infinity;
     return def.hardness !== undefined ? def.hardness : 1;
 }
 
-export function canBreakBlock(blockId, toolType) {
+ function canBreakBlock(blockId, toolType) {
     const def = safeGetBlockDef(blockId);
     if (!def) return true;
     if (def.unbreakable) return false;
@@ -694,7 +694,7 @@ export function canBreakBlock(blockId, toolType) {
 }
 
 // ============ INVENTORY QUICK SORT ============
-export function sortInventory() {
+ function sortInventory() {
     if (typeof inventory === "undefined") return;
     const totalSlots = typeof CONFIG !== "undefined" ? CONFIG.INVENTORY_SLOTS : 36;
     const items = [];
@@ -708,7 +708,7 @@ export function sortInventory() {
 }
 
 // ============ HOTBAR SCROLL ============
-export function scrollHotbar(direction) {
+ function scrollHotbar(direction) {
     if (typeof selectedSlot === "undefined") return;
     const hotbarSlots = typeof CONFIG !== "undefined" ? CONFIG.HOTBAR_SLOTS : 9;
     selectedSlot = ((selectedSlot + direction) % hotbarSlots + hotbarSlots) % hotbarSlots;
@@ -716,12 +716,12 @@ export function scrollHotbar(direction) {
 }
 
 // ============ WORLD BORDER CHECK ============
-export function isInsideWorldBorder(x, z, borderSize = 10000) {
+ function isInsideWorldBorder(x, z, borderSize = 10000) {
     return Math.abs(x) <= borderSize && Math.abs(z) <= borderSize;
 }
 
 // ============ SAFE TELEPORT ============
-export function safeTeleport(x, y, z) {
+ function safeTeleport(x, y, z) {
     const safeY = findSafeSpawnPoint(Math.floor(x), Math.floor(z));
     if (typeof player !== "undefined") {
         player.x = x;
@@ -733,26 +733,26 @@ export function safeTeleport(x, y, z) {
 }
 
 // ============ SPAWN PARTICLE EFFECTS BY TYPE ============
-export function spawnBlockParticles(x, y, z, blockId, count = 8) {
+ function spawnBlockParticles(x, y, z, blockId, count = 8) {
     const color = getBlockColor(blockId);
     if (typeof spawnParticles === "function") {
         spawnParticles(x, y, z, color, count, "break");
     }
 }
 
-export function spawnCritParticles(x, y, z) {
+ function spawnCritParticles(x, y, z) {
     if (typeof spawnParticles === "function") {
         spawnParticles(x, y, z, "#ffd700", 6, "crit");
     }
 }
 
-export function spawnHeartParticles(x, y, z) {
+ function spawnHeartParticles(x, y, z) {
     if (typeof spawnParticles === "function") {
         spawnParticles(x, y, z, "#ff69b4", 4, "sparkle");
     }
 }
 
-export function spawnSmokeParticles(x, y, z, count = 5) {
+ function spawnSmokeParticles(x, y, z, count = 5) {
     if (typeof spawnParticles === "function") {
         spawnParticles(x, y, z, "#888888", count, "smoke");
     }
