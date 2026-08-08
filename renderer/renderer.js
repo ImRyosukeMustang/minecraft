@@ -3,9 +3,7 @@
 // World, entities, particles, weather, lighting
 // ============================================
 
-// Texture atlas image (loaded once, not every frame)
-var textureAtlas = new Image();
-textureAtlas.src = "atlas.png";
+
 
 // ============ MAIN RENDER FUNCTION ============
 function render() {
